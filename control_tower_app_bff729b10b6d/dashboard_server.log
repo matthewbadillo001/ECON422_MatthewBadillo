@@ -1,0 +1,176 @@
+Open http://127.0.0.1:54635
+Press Ctrl+C to stop. Runs and reports are saved in C:\Users\mbadi\Documents\Machine_Learning\control_tower_app_bff729b10b6d\outputs
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 52617)
+Traceback (most recent call last):
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 500, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 488, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "c:\Users\mbadi\Documents\Machine_Learning\control_tower_app_bff729b10b6d\dashboard.py", line 121, in do_GET
+    return self.send((ROOT / 'dashboard.html').read_text().replace('__TOKEN__', TOKEN), 'text/html')
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8d in position 3478: character maps to <undefined>
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 55465)
+Traceback (most recent call last):
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 500, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 488, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "c:\Users\mbadi\Documents\Machine_Learning\control_tower_app_bff729b10b6d\dashboard.py", line 121, in do_GET
+    return self.send((ROOT / 'dashboard.html').read_text().replace('__TOKEN__', TOKEN), 'text/html')
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8d in position 3478: character maps to <undefined>
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 57450)
+Traceback (most recent call last):
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 500, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 488, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "c:\Users\mbadi\Documents\Machine_Learning\control_tower_app_bff729b10b6d\dashboard.py", line 121, in do_GET
+    return self.send((ROOT / 'dashboard.html').read_text().replace('__TOKEN__', TOKEN), 'text/html')
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8d in position 3478: character maps to <undefined>
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 56526)
+Traceback (most recent call last):
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 500, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 488, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "c:\Users\mbadi\Documents\Machine_Learning\control_tower_app_bff729b10b6d\dashboard.py", line 121, in do_GET
+    return self.send((ROOT / 'dashboard.html').read_text().replace('__TOKEN__', TOKEN), 'text/html')
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8d in position 3478: character maps to <undefined>
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 63601)
+Traceback (most recent call last):
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 500, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 488, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "c:\Users\mbadi\Documents\Machine_Learning\control_tower_app_bff729b10b6d\dashboard.py", line 121, in do_GET
+    return self.send((ROOT / 'dashboard.html').read_text().replace('__TOKEN__', TOKEN), 'text/html')
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8d in position 3478: character maps to <undefined>
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 61326)
+Traceback (most recent call last):
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 500, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\http\server.py", line 488, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "c:\Users\mbadi\Documents\Machine_Learning\control_tower_app_bff729b10b6d\dashboard.py", line 121, in do_GET
+    return self.send((ROOT / 'dashboard.html').read_text().replace('__TOKEN__', TOKEN), 'text/html')
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "c:\Users\mbadi\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8d in position 3478: character maps to <undefined>
+----------------------------------------

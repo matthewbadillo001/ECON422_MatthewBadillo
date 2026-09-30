@@ -1,0 +1,83 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Analyst Playground</title>
+<style>
+:root{font:16px/1.5 system-ui;color:#202044;background:#f4f2ff}*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:auto;padding:40px 24px}header{display:flex;justify-content:space-between;align-items:center;gap:20px}h1{font-size:clamp(30px,5vw,52px);letter-spacing:-2px;margin:8px 0}h2{margin:0 0 12px}p{color:#5d5b76}button,.button{border:0;border-radius:12px;padding:13px 20px;background:#6651da;color:white;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;display:inline-block}button:disabled{opacity:.5;cursor:wait}.secondary{background:#eeebff;color:#4d3ca6}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:28px 0}.card{background:white;border:1px solid #dfdaf5;border-radius:22px;padding:26px;box-shadow:0 8px 28px #36248108}.icon{font-size:30px}.tag{font-size:12px;letter-spacing:2px;font-weight:750;color:#6c59ba}.status{padding:5px 12px;border-radius:20px;background:#eeeafc;display:inline-block;font-size:13px}progress{width:100%;height:20px;accent-color:#7454df}#message{min-height:28px}.log{max-height:210px;overflow:auto;font-size:14px}.log p{border-bottom:1px solid #eee;margin:0;padding:10px 0}.actions{display:flex;gap:10px;flex-wrap:wrap}.hidden{display:none!important}dialog{border:0;border-radius:24px;padding:30px;width:min(650px,94vw);max-height:90vh;box-shadow:0 30px 120px #20174c55}dialog::backdrop{background:#1e184b77;backdrop-filter:blur(5px)}fieldset{border:0;padding:0;margin:20px 0}legend{font-weight:750;margin-bottom:10px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{padding:12px;border:1px solid #ded8f1;border-radius:12px;cursor:pointer}.choice:has(input:checked){background:#efeaff;border-color:#7961d9}input[type=checkbox],input[type=radio]{accent-color:#6950d5}select,input[type=number],input[type=text]{font:inherit;border:1px solid #d5cee9;border-radius:8px;padding:8px;width:100%}.settings{display:grid;grid-template-columns:1fr 1fr;gap:15px}.note{font-size:13px}.error{color:#a02438}#result{border-color:#9cd9c3;background:#f5fffa}#result h2{color:#246b55}a:focus,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #e0a12b;outline-offset:3px}@media(max-width:650px){.grid,.settings{grid-template-columns:1fr}header{align-items:start;flex-direction:column}}@media(prefers-reduced-motion:no-preference){#result{animation:hello .4s ease}@keyframes hello{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}}
+textarea{width:100%;min-height:300px;font:13px/1.5 ui-monospace,monospace;padding:12px;border:1px solid #d5cee9;border-radius:8px;resize:vertical;tab-size:4}dialog{width:min(850px,94vw)}.code-actions{margin:12px 0}.simulation-help{background:#f4f2ff;padding:12px;border-radius:10px}textarea:focus-visible{outline:3px solid #e0a12b;outline-offset:3px}.card.analyst-active{outline:4px solid #6651da;outline-offset:0;box-shadow:0 0 0 7px #6651da18}.card.analyst-active .status{background:#6651da;color:white;font-weight:750}</style><main>
+<header><div><span class="tag">ECON 422 · LOCAL PYTHON LAB</span><h1>Analyst Playground</h1><p>You choose the tools. Your analysts do the work.</p></div><button id="configure">✦ Configure a run</button></header>
+<div class="grid"><section id="mlCard" class="card"><div class="icon" aria-hidden="true">🧑‍💻</div><h2>ML Analyst</h2><p id="methodSummary">Random Forest is ready to explore your data.</p><span class="status" id="mlStatus">Ready</span></section><section id="evCard" class="card"><div class="icon" aria-hidden="true">🔎</div><h2>Model Evaluation Analyst</h2><p>Evaluate predictions, explain them with SHAP, and write your report.</p><span class="status" id="evStatus">Ready</span></section></div>
+<section class="card"><div style="display:flex;justify-content:space-between"><h2>Mission progress</h2><strong id="percent">0%</strong></div><progress id="bar" max="100" value="0" aria-label="Analysis milestone progress"></progress><p id="message" role="status">Choose your configuration to begin.</p><p class="note">Progress advances when real analysis milestones finish. A tuning step may take a while.</p><details><summary>Watch the analysts work</summary><div id="log" class="log"></div></details></section>
+<section id="result" class="card hidden" style="margin-top:24px"><h2>✓ Report ready!</h2><p id="metrics"></p><div class="actions"><a class="button" href="/report" target="_blank" rel="noopener">Open report</a><a class="button secondary" href="/download">Download HTML</a><button class="secondary" id="print">Print / Save PDF</button><a class="button secondary" id="simulationDownload" href="/simulation-download">Download simulation cell</a></div><p class="note" id="outputPath"></p></section>
+<p class="note">Upload a CSV or generate simulated data. Analysis reserves 20% for testing. SHAP explains predictions; it does not establish causation.</p>
+<dialog id="setup"><form id="form"><h2>Build your analyst team</h2><p>Pick one ML method or let several compete on CV MSE.</p><fieldset><legend>1 · ML Analyst methods</legend><div class="choices" id="methods"></div></fieldset><fieldset><legend>2 · Model Evaluation Analyst tool</legend><label class="choice" style="display:block"><input type="radio" name="explanation" value="SHAP" checked> SHAP · global importance + one observation</label></fieldset><fieldset><legend>3 · Choose your data</legend>
+<div class="choices"><label class="choice"><input type="radio" name="source" value="upload"> Upload a data file</label><label class="choice"><input type="radio" name="source" value="simulation" checked> Generate simulated data</label></div>
+<div id="uploadPanel" class="hidden">
+<p class="note">CSV with 80–20,000 independent observations and numeric outcomes and predictors. Use the exact column names below.</p>
+<label>Data file (.csv)<input id="dataFile" type="file" accept=".csv,text/csv"></label>
+<label>Outcome column<input name="target" type="text" placeholder="growth_next_year"></label>
+<label>Predictor columns (one per line)<textarea name="features" style="min-height:90px" placeholder="unemployment&#10;inflation"></textarea></label>
+<div class="settings"><label>Dataset label<input name="dataset_label" type="text" value="Uploaded data" maxlength="200"></label><label>Outcome units<input name="target_units" type="text" value="percentage points" maxlength="200"></label></div>
+<label><input type="checkbox" name="independent"> These rows are independent and suitable for random splitting.</label>
+<p class="note">Time-series and repeated-unit panel data require a different splitting design.</p></div>
+<div id="simulationPanel"><label>Data-generating process<select id="simulation" name="simulation"><option value="nonlinear">Nonlinear regional growth</option><option value="linear">Linear regional growth</option><option value="custom" disabled>My notebook DGP (run notebook cell 2 first)</option></select></label>
+<p class="note simulation-help" id="simulationHelp"></p>
+<label id="rowsSetting">Simulated observations<input name="rows" type="number" min="80" max="20000" value="400"></label></div>
+</fieldset><fieldset><legend>4 · Analysis settings</legend><p class="note">These settings apply to both uploaded and simulated data. They control model tuning and explanations, not data generation.</p><div class="settings"><label>Cross-validation folds<select name="folds"><option selected>3</option><option>5</option></select></label><label>Top K important variables<input name="top_k" type="number" min="1" max="100" step="1" value="5" required></label><label>Maximum SHAP observations<select name="explain_rows"><option>30</option><option selected>60</option><option>120</option></select></label><label>Random seed (split and CV)<input name="seed" type="number" min="0" max="999999" value="422" required></label></div></fieldset><p class="note">One method: tune that model. Multiple methods: select the lowest CV MSE before testing evaluation. Reports include performance, SHAP figures, and limitations.</p><p id="formError" class="error" role="alert"></p><div class="actions"><button type="submit">▶ Launch analysts</button><button type="button" class="secondary" id="close">Cancel</button></div></form></dialog>
+</main><script>
+const token='__TOKEN__', $=id=>document.getElementById(id), names=['Ridge','Lasso','Elastic Net','CART','Random Forest','Gradient Boosting'];
+names.forEach(name=>{const label=document.createElement('label');label.className='choice';const box=document.createElement('input');box.type='checkbox';box.name='methods';box.value=name;box.checked=name==='Random Forest';label.append(box,document.createTextNode(' '+name));$('methods').append(label)});
+let customDraft=null;
+const form=$('form');
+function refreshSource(){
+ const upload=form.elements.source.value==='upload', custom=$('simulation').value==='custom';
+ $('uploadPanel').classList.toggle('hidden',!upload);
+ $('simulationPanel').classList.toggle('hidden',upload);
+ $('rowsSetting').classList.toggle('hidden',custom);
+ form.elements.rows.disabled=upload||custom;
+ $('simulationHelp').textContent=custom?'Your data-generation settings come from notebook cell 2: equation, sample size, and generation seed. Edit and rerun that cell, then open its new link to apply changes. Choose the analysis settings below separately.':'Generates independent simulated regions. Neither example guarantees a particular winning method.';
+}
+$('configure').onclick=()=>{refreshSource();$('setup').showModal()};
+$('close').onclick=()=>$('setup').close();
+for(const input of form.querySelectorAll('[name="source"]'))input.onchange=refreshSource;
+$('simulation').onchange=refreshSource;
+let lastStatus='idle';
+$('form').onsubmit=async event=>{
+ event.preventDefault();const data=new FormData(form),config={methods:data.getAll('methods'),explanation:data.get('explanation'),source:data.get('source')};
+ for(const k of ['folds','explain_rows','seed','top_k'])config[k]=Number(data.get(k));
+ try{
+ if(!config.methods.length)throw Error('Choose at least one ML method.');
+ if(config.source==='upload'){
+  const file=$('dataFile').files[0];if(!file)throw Error('Choose a CSV file.');
+  if(file.size>5000000)throw Error('Choose a CSV smaller than 5 MB.');
+  config.csv_text=await file.text();config.target=data.get('target').trim();
+  config.features=data.get('features').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  config.dataset_label=data.get('dataset_label').trim();config.target_units=data.get('target_units').trim();config.independent=data.has('independent');
+ }else{
+  config.simulation=$('simulation').value;
+  if(config.simulation==='custom'){if(!customDraft)throw Error('Run notebook cell 2 and use its link first.');config.simulation_code=customDraft}
+  else config.rows=Number(data.get('rows'));
+ }
+ const res=await fetch('/run',{method:'POST',headers:{'Content-Type':'application/json','X-Local-Token':token},body:JSON.stringify(config)}),body=await res.json();
+ if(!res.ok)throw Error(body.error||'Could not start');$('setup').close();$('formError').textContent='';$('result').classList.add('hidden');$('methodSummary').textContent=config.methods.join(' + ');await poll();
+ }catch(err){$('formError').textContent=err.message}
+};
+function highlightAnalyst(s){
+ for(const [id,role] of [['mlCard','ML Analyst'],['evCard','Model Evaluation Analyst']]){
+  const active=s.status==='running'&&s.role===role;
+  $(id).classList.toggle('analyst-active',active);
+  $(id).setAttribute('aria-busy',String(active));
+ }
+}
+async function poll(){try{const res=await fetch('/status');if(!res.ok)throw Error('Connection unavailable');const s=await res.json();lastStatus=s.status;highlightAnalyst(s);$('configure').disabled=s.status==='running';$('bar').value=s.progress;$('percent').textContent=s.progress+'%';$('message').textContent=s.message;$('message').className=s.status==='error'?'error':'';if(s.configuration)$('methodSummary').textContent=s.configuration.methods.join(' + ');$('mlStatus').textContent=s.status==='idle'?'Ready':s.progress>=65?'Complete':s.status==='error'?'Stopped':'Working';$('evStatus').textContent=s.status==='done'?'Complete':s.status==='error'?'Stopped':s.progress>=70?'Working':'Waiting';$('log').replaceChildren(...s.events.map(e=>{const p=document.createElement('p');p.textContent=e.time+' · '+e.role+': '+e.message;return p}));if(s.status==='done'){$('simulationDownload').classList.toggle('hidden',s.configuration?.source==='upload');$('result').classList.remove('hidden');$('metrics').textContent=s.selected+' · Testing RMSE '+s.metrics.test_rmse.toFixed(3)+' '+(s.simulation?.target_units||'')+' · R² '+s.metrics.test_r2.toFixed(3)+(s.simulation?' · '+s.simulation.rows+(s.configuration?.source==='upload'?' uploaded rows':' simulated rows'):'');$('outputPath').textContent='Saved to: '+s.output_path}}catch(err){highlightAnalyst({status:'disconnected'});$('message').textContent='Connection lost. Keep the local Python server running.'}}
+function loadNotebookDGP(){
+ const prefix='#notebook-dgp=';if(!location.hash.startsWith(prefix))return;
+ try{
+  const code=decodeURIComponent(location.hash.slice(prefix.length));
+  if(!code.trim()||new TextEncoder().encode(code).length>60000)throw Error('Invalid notebook DGP. Rerun notebook cell 2.');
+  customDraft=code;
+  const option=$('simulation').querySelector('[value="custom"]');option.disabled=false;option.textContent='My notebook DGP';
+  $('simulation').value='custom';form.elements.source.value='simulation';refreshSource();
+  if(!$('setup').open)$('setup').showModal();history.replaceState(null,'',location.pathname+location.search);
+ }catch(err){$('formError').textContent=err.message;if(!$('setup').open)$('setup').showModal()}
+}
+window.addEventListener('hashchange',loadNotebookDGP);refreshSource();loadNotebookDGP();
+$('print').onclick=()=>{const w=window.open('/report','_blank');if(w)w.addEventListener('load',()=>w.print(),{once:true})};poll();setInterval(poll,1000);
+</script></html>
