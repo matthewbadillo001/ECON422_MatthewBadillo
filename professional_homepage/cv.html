@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Your Name | CV</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.55;
+            color: #1f2933;
+            background: #ffffff;
+        }
+
+        .cv {
+            width: min(820px, 90%);
+            margin: 48px auto;
+        }
+
+        header {
+            border-bottom: 2px solid #1f4e79;
+            padding-bottom: 18px;
+            margin-bottom: 32px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.15rem;
+        }
+
+        .title {
+            margin: 5px 0;
+            color: #667085;
+        }
+
+        .contact {
+            margin-top: 9px;
+            font-size: 0.92rem;
+        }
+
+        a {
+            color: #1f4e79;
+        }
+
+        section {
+            margin: 30px 0;
+        }
+
+        section h2 {
+            margin: 0 0 14px;
+            padding-bottom: 5px;
+
+            border-bottom: 1px solid #d8dee8;
+
+            color: #1f4e79;
+
+            font-size: 1.05rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .entry {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin: 12px 0;
+        }
+
+        .entry span,
+        li span {
+            color: #667085;
+        }
+
+        .date {
+            min-width: 115px;
+            text-align: right;
+            color: #667085;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin: 9px 0;
+        }
+
+
+        /* Good behavior when printing / saving as PDF */
+
+        @media print {
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .cv {
+                width: 100%;
+                margin: 0;
+            }
+
+            a {
+                color: black;
+                text-decoration: none;
+            }
+
+            section h2 {
+                color: black;
+            }
+        }
+
+
+        /* Small screens */
+
+        @media (max-width: 650px) {
+
+            .entry {
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .date {
+                text-align: left;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <main class="cv">
+
+        <header>
+
+            <h1>Your Name</h1>
+
+            <p class="title">Economist | Researcher | Instructor</p>
+
+            <p class="contact">
+
+                <a href="mailto:your.email@example.com">
+                    your.email@example.com
+                </a>
+
+                &nbsp; | &nbsp;
+
+                <a href="https://your-username.github.io/">
+                    your-username.github.io
+                </a>
+
+                &nbsp; | &nbsp;
+
+                <a href="https://github.com/your-username">
+                    github.com/your-username
+                </a>
+
+            </p>
+
+        </header>
+
+
+        <section>
+
+            <h2>Education</h2>
+
+            
+        <div class="entry">
+            <div>
+                <strong>Ph.D. in Economics</strong><br>
+                <span>University Name</span>
+            </div>
+            <div class="date">2026</div>
+        </div>
+    
+        <div class="entry">
+            <div>
+                <strong>M.A. in Economics</strong><br>
+                <span>University Name</span>
+            </div>
+            <div class="date">2021</div>
+        </div>
+    
+
+        </section>
+
+
+        <section>
+
+            <h2>Positions</h2>
+
+            
+        <div class="entry">
+            <div>
+                <strong>Researcher / Instructor</strong><br>
+                <span>Institution Name</span>
+            </div>
+            <div class="date">2026-present</div>
+        </div>
+    
+
+        </section>
+
+
+        <section>
+
+            <h2>Research Interests</h2>
+
+            <ul>
+                <li>Econometrics</li><li>Machine Learning</li><li>Causal Inference</li><li>Applied Economics</li>
+            </ul>
+
+        </section>
+
+
+        <section>
+
+            <h2>Publications and Working Papers</h2>
+
+            <ul>
+                
+        <li>
+            <strong>Paper Title</strong><br>
+            <span>Journal or working-paper information</span>
+        </li>
+    
+        <li>
+            <strong>Working Paper Title</strong><br>
+            <span>Working paper</span>
+        </li>
+    
+            </ul>
+
+        </section>
+
+
+        <section>
+
+            <h2>Teaching</h2>
+
+            <ul>
+                
+        <li>
+            <strong>Macroeconomics and Machine Learning</strong><br>
+            <span>University Name, 2026</span>
+        </li>
+    
+        <li>
+            <strong>Econometrics</strong><br>
+            <span>University Name, 2026</span>
+        </li>
+    
+            </ul>
+
+        </section>
+
+
+        <section>
+
+            <h2>Awards and Fellowships</h2>
+
+            <ul>
+                <li>Award or fellowship, 2026</li>
+            </ul>
+
+        </section>
+
+
+        <section>
+
+            <h2>Service</h2>
+
+            <ul>
+                <li>Professional or university service</li>
+            </ul>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
