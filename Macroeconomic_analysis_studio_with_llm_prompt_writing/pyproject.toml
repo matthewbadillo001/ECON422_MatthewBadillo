@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "econ422-studio"
+version = "0.20.0"
+description = "A teaching lab for monthly forecasts and cross-sectional or time-series DML"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24,<3", "pandas>=2.0,<4", "scikit-learn>=1.3,<2", "pydantic>=2.5,<3", "reportlab>=4,<5"]
+
+[project.scripts]
+econ422-studio = "studio_core.cli:main"
+toy-sl = "studio_core.cli:main"
+
+[tool.setuptools]
+packages = ["studio_core", "superlearner", "toy_superlearner"]
+py-modules = ["dml", "rcf_screen", "exploration", "hybrid_forecasting"]
+package-dir = {toy_superlearner = "compat/legacy_api"}
+
+[tool.setuptools.package-data]
+studio_core = ["data/*.csv", "studio.html"]

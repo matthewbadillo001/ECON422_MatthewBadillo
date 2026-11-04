@@ -1,0 +1,1237 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Macroeconomic Analysis Studio with LLM prompt writing</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f7f3;color:#172d35;font:16px/1.5 system-ui,sans-serif}
+main{max-width:900px;margin:32px auto;padding:0 22px 60px}h1{font:600 clamp(2rem,5vw,3.3rem)/1.1 Georgia,serif;margin:.3em 0}
+h2{font:600 1.45rem Georgia,serif;margin:.1em 0 .7em}p{margin:.5em 0 1em}.eyebrow{letter-spacing:.12em;font-weight:700;font-size:.76rem;color:#31665d}
+section{margin-top:20px;background:white;border:1px solid #d5dcd5;border-radius:10px;padding:20px}label{display:block;font-weight:650;margin:.5em 0}
+textarea{font:inherit;resize:vertical;width:100%;min-height:145px;padding:.8em;border:1px solid #9cacaa;border-radius:5px}button{font:600 .93rem system-ui,sans-serif;cursor:pointer;border:1px solid #bdc7c1;border-radius:5px;background:#fff;color:#24423d;padding:.55em .85em;margin:4px 5px 4px 0}
+button.primary{background:#125e51;color:white;border-color:#125e51}button:disabled{opacity:.5;cursor:wait}
+.note,#status{color:#465c56}.trace{border-left:3px solid #61a394;margin:12px 0;padding:4px 0 4px 12px}
+pre{background:#f0f4f1;padding:10px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.83rem}details{margin-top:6px}
+.tablebox{overflow:auto}table{border-collapse:collapse;width:100%}td,th{text-align:right;border-bottom:1px solid #dce4e0;padding:7px}td:first-child,th:first-child{text-align:left}input{max-width:100%}
+#promptFields{min-width:0;margin:16px 0 4px;border:0;padding:0}
+#promptFields legend{font:600 1.18rem Georgia,serif;padding:0}
+.prompt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin:8px 0}
+.prompt-grid>div{min-width:0;display:flex;flex-direction:column}
+.prompt-grid .wide{grid-column:1/-1}
+.prompt-grid label{margin:.25rem 0}.hint{font-size:.92rem;color:#465c56;margin:0 0 .5rem}
+.prompt-grid textarea{font-size:.95rem;min-height:4.8rem;margin-top:auto;line-height:1.45}
+.prompt-preview{margin:.8em 0 1.4em}.prompt-preview summary{cursor:pointer;color:#125e51}
+@media(max-width:680px){.prompt-grid{grid-template-columns:1fr}}
+main{max-width:960px}h1{max-width:880px;letter-spacing:-.035em}
+.workbench{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:1em 0}
+.worker{display:flex;align-items:center;gap:.5rem;padding:10px;border:1px solid #d6dfda;border-radius:8px;background:#f6f8f4}
+.worker svg{height:48px;width:48px;flex:none;overflow:visible;color:#324e51}.worker b,.worker small{display:block}
+.worker small{color:#49605a;font-size:.78rem}.worker.active{border:2px solid #18715e;background:#e7f5ee;padding:9px}
+.worker.active .figure{transform-origin:center;animation:bob .95s ease-in-out infinite alternate}
+.worker.active .hands{transform-origin:36px 37px;animation:work .55s ease-in-out infinite alternate}
+.worker.active small::after{content:"";display:inline-block;border-radius:50%;width:.45em;height:.45em;background:#18715e;margin-left:.35em;animation:pulse .9s ease infinite alternate}
+@keyframes bob{to{transform:translateY(-3px) rotate(-3deg)}}@keyframes work{to{transform:rotate(-12deg)}}@keyframes pulse{to{opacity:.22}}
+@media(prefers-reduced-motion:reduce){*,*::after{animation:none!important;transition:none!important}}
+.trace{border:1px solid #d9e1dc;border-left:4px solid var(--edge,#859992);border-radius:5px;padding:.65rem .8rem;background:#fff}
+.trace-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}.trace p{margin:.4em 0 .15em}
+.badge{font-size:.78rem;font-weight:700;letter-spacing:.015em;padding:2px 8px;border-radius:20px;background:var(--tint,#eef1f1);color:var(--tone,#314843)}
+.accept{--edge:#23724e;--tone:#175334;--tint:#e2f2e5}.revise{--edge:#b46619;--tone:#713b07;--tint:#ffedca}
+.ask{--edge:#7c53a1;--tone:#582e7b;--tint:#f1e6fb}.draft{--edge:#5277a7;--tone:#2e4c74;--tint:#e8eff8}
+.compute{--edge:#24847f;--tone:#195952;--tint:#dcf2ef}.stop{--edge:#ad4550;--tone:#7a2635;--tint:#f9e2e4}
+#trace{max-height:36rem;overflow:auto}.download{display:inline-block;font-weight:600;font-size:.93rem;border:1px solid #bdc7c1;
+border-radius:5px;color:#24423d;text-decoration:none;padding:.4em .85em;background:white;margin-right:4px}
+.result-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.feedback-panel{margin-top:1.4em;border-top:1px solid #cbd7d1;padding-top:.8em}
+#feedback{min-height:78px}#versions{font:inherit;border:1px solid #a9b6ad;padding:.2em .4em;border-radius:5px}
+.comparison{padding:.7em 1em;background:#f1f5f1;border-left:3px solid #52756a;white-space:pre-line}
+@media(max-width:560px){.worker{flex-direction:column;align-items:flex-start;gap:0}.worker svg{height:38px;width:38px}}
+#clarificationPanel{margin:1rem 0;padding:1rem;border:1px solid #b7a3c9;border-left:4px solid #7c53a1;background:#f7f2fa;border-radius:6px}
+#clarificationPanel textarea{min-height:4.8rem} .criteriaList{padding-left:1.4rem}.criteriaList li{margin:.2rem 0}
+@media(max-width:720px){.workbench{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#rewritePanel{margin:1rem 0;padding:1rem;border:1px solid #aec7bc;border-left:4px solid #2d7961;background:#f2f8f4;border-radius:6px} #rewritePanel textarea{min-height:6em}
+#fieldNotice{background:#f4edf9;border-left:4px solid #80559e;padding:.6em .8em}
+.field-help{margin:.4rem 0 .8rem;padding:.65rem;border-radius:6px;background:#f7f3fa}
+.field-help p{margin:.25rem 0 .45rem}.field-help button{display:block;text-align:left;width:100%;white-space:normal}
+.field-help button.manual{width:auto;font-weight:400}.field-help small{color:#50445e}
+.needs-detail{border:2px solid #96570e;background:#fff8e9}
+textarea:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #17675d;outline-offset:2px}
+.empty-label{display:inline-block;margin-left:.45em;color:#734005;background:#fff0cd;border-radius:4px;padding:0 .4em;font:600 .78rem/1.6 system-ui,sans-serif}
+.empty-label[hidden]{display:none}
+.hint-setting{font-size:.92rem;font-weight:500}.hint-setting input{accent-color:#125e51}
+.field-help[inert]{opacity:.55}
+.field-help button.candidate{border-color:#b8a4c8;font-weight:500}.field-help button.candidate:hover{background:#eee4f5}
+.field-help button.manual{font-size:.85rem}.field-help small{display:block;margin:.2em 0}
+.sr-only{position:absolute;height:1px;width:1px;overflow:hidden;clip-path:inset(50%)}
+#sourcePanel{margin:.8rem 0;padding:1rem;background:#edf5f0;border-left:4px solid #31665d;border-radius:5px}
+#sourcePanel input, #sourceMode{font:inherit;border:1px solid #91a49d;border-radius:4px;padding:.45em}
+#sourcePanel input{width:min(100%,32rem)}#sourceStatus{display:block;margin:.4em 0}
+#scores.diagnostics th,#scores.diagnostics td{text-align:left;vertical-align:top}
+#scores.diagnostics td:nth-child(2){font-weight:650}#scores.diagnostics td[data-status="Concern"]{color:#87420a}
+#scores.diagnostics td[data-status="Inconclusive"]{color:#623687}
+.lab-header{display:flex;align-items:center;flex-wrap:wrap;width:fit-content;max-width:100%;min-height:2.5rem;gap:.3rem .9rem}
+.lab-header .eyebrow{min-width:0;overflow-wrap:anywhere;text-align:start;border:0;background:transparent;color:#31665d;margin:0;padding:.4rem .25rem .4rem 0;font:700 .76rem/1.5 system-ui,sans-serif;letter-spacing:.12em}
+.lab-header .eyebrow:hover,.lab-header .eyebrow:focus-visible{color:#125e51}
+.lab-personalize{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .55rem;color:#465c56;font-size:.85rem}
+.lab-personalize[hidden]{display:none}
+.lab-personalize label{margin:0}.lab-personalize input{width:12rem;font:inherit;color:#172d35;border:1px solid #9cacaa;border-radius:5px;padding:.35rem .6rem}
+
+.template-gallery{--shelf-ink:#193936;border:1px solid #bfcec4;border-radius:12px;background:#f7f9f5;padding:clamp(14px,3vw,24px);margin:4px 0 20px;color:var(--shelf-ink)}
+.gallery-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.shelf-kicker{font-size:.68rem;letter-spacing:.15em;font-weight:740;color:#406659}
+.gallery-heading h3{font:500 clamp(1.5rem,3vw,2.15rem)/1.15 Georgia,serif;letter-spacing:-.025em;margin:.22rem 0 0}
+.blank-template{white-space:nowrap;font-size:.85rem;background:transparent;border-color:#bccbc1;margin:0}
+.gallery-help{color:#52625c;font-size:.9rem;margin:.55rem 0 .9rem}
+.gallery-categories{display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid #d3ded5;padding:0 0 10px;margin-bottom:14px}
+.gallery-categories button{margin:0;padding:.4rem .8rem;font-size:.85rem;background:transparent;border-color:transparent;border-radius:20px}
+.gallery-categories button[aria-pressed=true]{color:white;background:#244f44}
+.gallery-categories button:hover:not([aria-pressed=true]){background:#e7ede6}
+.template-shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));gap:9px}
+.template-shelf[hidden]{display:none}
+.template-card{display:flex;flex-direction:column;text-align:left;gap:.4rem;width:100%;margin:0;padding:13px 15px 14px;background:white;border:1px solid #cbd7cc;border-radius:9px;color:#203832;line-height:1.35;transition:border-color .15s,background .15s}
+.template-card:hover{border-color:#537b66;background:#fafbf8}
+.template-card[aria-pressed=true]{border-color:#34624e;box-shadow:inset 0 0 0 1px #34624e;background:#f0f6eb}
+.card-top{display:flex;align-items:center;gap:.48rem;width:100%;margin-bottom:.1rem}
+.card-symbol{display:grid;place-items:center;width:27px;height:27px;border-radius:7px;background:#eaf0e5;color:#3c614d}
+.card-symbol svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.card-tag{font-size:.72rem;color:#53645a;font-weight:580}
+.card-check{margin-left:auto;visibility:hidden;color:#24593e}.template-card[aria-pressed=true] .card-check{visibility:visible}
+.template-card strong{font-size:.95rem}.card-desc{font-weight:400;font-size:.82rem;color:#4f6259;line-height:1.42}
+.template-selection{font-size:.78rem;color:#486154;margin:.7rem 0 0}.template-gallery button:focus-visible{outline:3px solid #2a68a4;outline-offset:3px}
+@media(max-width:475px){.template-shelf{grid-template-columns:1fr}.gallery-categories button{padding:.35rem .52rem}.template-gallery{padding:12px}}
+#familyCustomize:not([hidden]){border:1px solid #cbd8ce;border-radius:8px;background:#f3f6f1;padding:.6rem .8rem;margin-bottom:1rem}#familyCustomize summary{cursor:pointer;color:#285846;font-weight:650}
+.builder-card{border-style:dashed;background:#f4f8f4}.family-inputs label{min-width:0}.family-inputs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.65rem 1rem}.family-inputs label{grid-column:span 2}#familyBaseLabel,#familyLearnerLabel{grid-column:span 3}.family-inputs select,.family-inputs input{width:100%;display:block;margin-top:4px;font:inherit;padding:.3rem}.family-inputs [hidden]{display:none}
+@media(max-width:700px){.family-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}.family-inputs label,#familyBaseLabel,#familyLearnerLabel{grid-column:span 1}}
+@media(max-width:460px){.family-inputs{grid-template-columns:minmax(0,1fr)}}
+.division-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
+.division-tabs button{text-align:left;margin:0;padding:12px 14px;border:1px solid #bacbbd;background:white;border-radius:9px;color:#203d32}
+.division-tabs strong,.division-tabs small{display:block}.division-tabs strong{font-size:1rem}.division-tabs small{font-weight:450;font-size:.78rem;margin-top:.18rem}
+.division-tabs button[aria-selected=true]{background:#254e42;color:white;border-color:#254e42}
+.division-guide{font-size:.93rem;margin:.65rem 0 1rem;color:#40584b}.gallery-help{margin:.85rem 0 0;font-size:.8rem}
+#practiceNotes{border:1px solid #cbd8cf;border-radius:8px;margin:.7rem 0;padding:.85rem 1rem;background:#f4f7f2}
+#practiceNotes p{margin:.4rem 0}#practiceStatus{font-size:.85rem;color:#395749}
+@media(max-width:540px){.division-tabs{gap:4px}.division-tabs button{padding:.55rem .35rem;text-align:center}.division-tabs strong{font-size:.83rem}.division-tabs small{display:none}}
+</style></head><body><main><div class="lab-header" id="labHeader">
+<button type="button" class="eyebrow" id="editLabName" aria-expanded="false" aria-controls="labNameEditor"><bdi id="labOwner"></bdi>LOCAL ECONOMETRICS LAB <span aria-hidden="true">✎</span><span class="sr-only"> Edit lab name</span></button>
+<div class="lab-personalize" id="labNameEditor" hidden><label for="labName">Your name (optional)</label>
+<input id="labName" type="text" maxlength="80" dir="auto" autocomplete="off"></div></div>
+<h1>Macroeconomic Analysis Studio with LLM prompt writing</h1>
+<p>Choose Forecasting or Estimation to write your own economic question in five fields.</p>
+<section><h2>1. Write your question</h2><form id="form">
+<div class="template-gallery" aria-label="Studio workspaces">
+<div class="gallery-heading"><div><span class="shelf-kicker">ECON 422 &nbsp; / &nbsp; STUDIO</span><h3>Choose a workspace</h3></div></div>
+<div class="division-tabs" role="tablist" aria-label="Studio divisions">
+<button id="division-forecasting" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="panel-forecasting"><strong>Forecasting</strong><small>Predict future outcomes</small></button>
+<button id="division-estimation" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="panel-estimation"><strong>Estimation</strong><small>Estimate relationships</small></button>
+</div>
+<div id="panel-forecasting" role="tabpanel" aria-labelledby="division-forecasting">
+<p class="division-guide">Write your own forecast or choose a method to see its examples.</p>
+<div class="gallery-categories" role="group" aria-label="Forecasting methods">
+<button type="button" id="category-forecasting-blank" aria-controls="shelf-forecasting-blank" aria-pressed="true">Prompt writing</button>
+<button type="button" id="category-hybrid" aria-controls="shelf-hybrid" aria-pressed="false">Hybrid: classical + ML</button>
+<button type="button" id="category-ml" aria-controls="shelf-ml" aria-pressed="false">ML only</button>
+<button type="button" id="category-classic" aria-controls="shelf-classic" aria-pressed="false">Classical only</button>
+<button type="button" id="category-forecast" aria-controls="shelf-forecast" aria-pressed="false">Explore &amp; compare</button>
+</div>
+<div id="shelf-forecasting-blank"><p class="division-guide">Describe the series, forecast horizon and evaluation period. Write your question in the five boxes below.</p>
+<details><summary>Try a writing exercise</summary><div class="template-shelf" role="group" aria-label="Forecasting writing exercises">
+<button type="button" class="template-card" id="incomplete" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h15 M4 12h9 M4 18h6 M15 18h6 M18 15v6"/></svg></span><span class="card-tag">Guided writing</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Try an incomplete prompt</strong><span class="card-desc">Complete the missing fields using suggestions from the prompt reviewer.</span></button>
+<button type="button" class="template-card" id="rough" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19l4-1L20 7l-3-3L6 15z M13 6l5 5"/></svg></span><span class="card-tag">Revision</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Try a rough prompt</strong><span class="card-desc">Turn a shorthand sales question into an analysis-ready prompt.</span></button>
+</div></details>
+</div>
+<div id="shelf-hybrid" class="template-shelf" hidden role="group" aria-label="Hybrid: classical + ML templates">
+<button type="button" class="template-card builder-card" id="buildHybrid" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h9m4 0h5M3 17h3m4 0h11"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span><span class="card-tag">Custom setup</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Build a hybrid</strong><span class="card-desc">Choose a classical baseline and an ML learner to forecast its errors.</span></button>
+<button type="button" class="template-card" id="seasonForest" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 19l7-6 10-8 M3 15l5-5 4 3 4-7 4 1"/></svg></span><span class="card-tag">Two stages</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Trend and seasonality + forest</strong><span class="card-desc">Model trend and calendar-month effects, then learn the remaining forecast error.</span></button>
+<button type="button" class="template-card" id="trendLasso" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 19l7-6 10-8 M3 15l5-5 4 3 4-7 4 1"/></svg></span><span class="card-tag">Two stages</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Trend + LASSO</strong><span class="card-desc">Extrapolate a linear trend and use shrinkage to forecast its errors.</span></button>
+<button type="button" class="template-card" id="arForest" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 19l7-6 10-8 M3 15l5-5 4 3 4-7 4 1"/></svg></span><span class="card-tag">Two stages</span><span class="card-check" aria-hidden="true">✓</span></span><strong>AR(1) + forest</strong><span class="card-desc">Let last month inform the baseline. Use a forest to forecast the correction.</span></button>
+</div>
+<div id="shelf-ml" class="template-shelf" hidden role="group" aria-label="ML only templates">
+<button type="button" class="template-card builder-card" id="buildML" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h9m4 0h5M3 17h3m4 0h11"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span><span class="card-tag">Custom setup</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Choose an ML model</strong><span class="card-desc">Forecast the monthly series directly with your choice of learner.</span></button>
+<button type="button" class="template-card" id="forecast" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-9"/></svg></span><span class="card-tag">Retail sales</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Forecast example</strong><span class="card-desc">Combine LASSO and random forest to forecast January retail sales.</span></button>
+<button type="button" class="template-card" id="mlForest" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18l4-6 3 3 4-9 3 5 4-4"/></svg></span><span class="card-tag">Direct ML</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Random forest</strong><span class="card-desc">Predict sales directly from its recent history and the calendar.</span></button>
+<button type="button" class="template-card" id="mlLasso" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18l4-6 3 3 4-9 3 5 4-4"/></svg></span><span class="card-tag">Direct ML</span><span class="card-check" aria-hidden="true">✓</span></span><strong>LASSO</strong><span class="card-desc">Predict monthly sales using a regularized linear model.</span></button>
+</div>
+<div id="shelf-classic" class="template-shelf" hidden role="group" aria-label="Classical only templates">
+<button type="button" class="template-card builder-card" id="buildClassical" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h9m4 0h5M3 17h3m4 0h11"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span><span class="card-tag">Custom setup</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Choose a classical model</strong><span class="card-desc">Choose a benchmark, trend model, autoregression, or MA(1) for your monthly series.</span></button>
+<button type="button" class="template-card" id="classicAR" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18l5-4 4 1 8-10"/></svg></span><span class="card-tag">Autoregression</span><span class="card-check" aria-hidden="true">✓</span></span><strong>AR(1)</strong><span class="card-desc">Fit the relationship between this month and the previous month.</span></button>
+<button type="button" class="template-card" id="classicMA" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 14h5l2-8 4 12 2-4h5"/></svg></span><span class="card-tag">Lagged shock</span><span class="card-check" aria-hidden="true">✓</span></span><strong>MA(1)</strong><span class="card-desc">Use last month’s forecast error to adjust the next forecast from its mean.</span></button>
+<button type="button" class="template-card" id="classicTrend" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18l5-4 4 1 8-10"/></svg></span><span class="card-tag">Calendar regression</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Trend and seasonality</strong><span class="card-desc">Fit a linear time trend and a separate effect for each calendar month.</span></button>
+</div>
+<div id="shelf-forecast" class="template-shelf" hidden role="group" aria-label="Explore &amp; compare templates">
+<button type="button" class="template-card" id="explore" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 16h2v4H4z M9 11h2v9H9z M14 5h2v15h-2z M19 9h2v11h-2z"/></svg></span><span class="card-tag">Model choice</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Explore a time series</strong><span class="card-desc">Measure seasonal patterns and compare five forecasting models.</span></button>
+<button type="button" class="template-card" id="familyCompare" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18h3v-6H4z M10 18h3V8h-3z M16 18h3V4h-3z"/></svg></span><span class="card-tag">Model choice</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Compare forecast families</strong><span class="card-desc">Compare a classical model, an ML model, and their hybrid using earlier validation months.</span></button>
+</div>
+</div>
+<div id="panel-estimation" role="tabpanel" aria-labelledby="division-estimation" hidden>
+<p class="division-guide">Write your own estimation question or choose a regression or DML example.</p>
+<div class="gallery-categories" role="group" aria-label="Estimation methods">
+<button type="button" id="category-estimation-blank" aria-controls="shelf-estimation-blank" aria-pressed="true">Prompt writing</button>
+<button type="button" id="category-regression" aria-controls="shelf-regression" aria-pressed="false">Regression</button>
+<button type="button" id="category-cross" aria-controls="shelf-cross" aria-pressed="false">Cross-sectional DML</button>
+<button type="button" id="category-ts" aria-controls="shelf-ts" aria-pressed="false">Time-series DML</button>
+</div>
+<div id="shelf-estimation-blank"><p class="division-guide">Describe the outcome, exposure, controls and observations. Write your question in the five boxes below.</p>
+<details><summary>Try a writing exercise</summary><div class="template-shelf" role="group" aria-label="Estimation writing exercises">
+<button type="button" class="template-card" id="estimationIncomplete" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h15 M4 12h9 M4 18h6 M15 18h6 M18 15v6"/></svg></span><span class="card-tag">Guided writing</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Try an incomplete prompt</strong><span class="card-desc">Complete three missing fields for a question about training hours and earnings.</span></button>
+<button type="button" class="template-card" id="estimationRough" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19l4-1L20 7l-3-3L6 15z M13 6l5 5"/></svg></span><span class="card-tag">Revision</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Try a rough prompt</strong><span class="card-desc">Turn a shorthand question about training and earnings into a precise estimation request.</span></button>
+</div></details>
+</div>
+<div id="shelf-regression" class="template-shelf" hidden role="group" aria-label="Regression templates">
+<button type="button" class="template-card" id="estimate" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19L20 5 M6 13h1 M10 17h1 M15 7h1 M17 12h1"/></svg></span><span class="card-tag">OLS · Monthly</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Estimation example</strong><span class="card-desc">Estimate a lagged association with a HAC confidence interval.</span></button>
+</div>
+<div id="shelf-cross" class="template-shelf" hidden role="group" aria-label="Cross-sectional DML templates">
+<button type="button" class="template-card" id="crossAssess" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 7h14 M5 12h9 M5 17h7 M16 16l2 2 3-4"/></svg></span><span class="card-tag">Independent units</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Cross-sectional DML assessment</strong><span class="card-desc">Check exposure support and nuisance fit before estimation.</span></button>
+<button type="button" class="template-card" id="crossExample" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17l5-3 4 1 7-9 M4 20h16"/></svg></span><span class="card-tag">Independent units</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Cross-sectional DML estimate</strong><span class="card-desc">Estimate the training-hours coefficient across households.</span></button>
+</div>
+<div id="shelf-ts" class="template-shelf" hidden role="group" aria-label="Time-series DML templates">
+<button type="button" class="template-card" id="dmlExample" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 3-8 2 2h3"/></svg></span><span class="card-tag">Monthly data</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Time-series DML assessment</strong><span class="card-desc">Review stationarity, reversibility, and stability across blocks.</span></button>
+<button type="button" class="template-card" id="tsEstimate" aria-pressed="false"><span class="card-top"><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-9 M5 21h15"/></svg></span><span class="card-tag">Monthly data</span><span class="card-check" aria-hidden="true">✓</span></span><strong>Time-series DML estimate</strong><span class="card-desc">Estimate persistence when the three diagnostic checks allow it.</span></button>
+</div>
+</div>
+<p class="gallery-help">Choosing Prompt writing or switching workspaces starts a fresh form. Browsing methods keeps your own wording. Select a worked example to fill the five fields. Click its Python Run button when you want to see the results.</p><p id="templateSelection" class="template-selection" role="status"></p></div>
+<div id="analysisCustomize"><div id="familyCustomize" hidden><details id="familySettings"><summary>Change forecast components or use another series</summary>
+<p class="hint">Choose any baseline and learner for a hybrid. Apply your choices to fill the five prompt fields, then click Run.</p>
+<div class="family-inputs">
+<label id="familyBaseLabel">Classical component<select id="familyBase"><optgroup label="Benchmarks and trends">__FAMILY_BASES__</optgroup><optgroup label="Autoregression · monthly lags">__FAMILY_AR__</optgroup><optgroup label="Moving average · lagged shocks">__FAMILY_MA__</optgroup></select></label>
+<label id="familyLearnerLabel">ML component<select id="familyLearner">__FAMILY_LEARNERS__</select></label>
+<label>Series source<select id="familySource"><option value="bundled">Included U.S. retail sales</option><option value="activity">Included simulated activity</option><option value="csv">My monthly CSV</option><option value="fred">FRED API</option></select></label>
+<label>Target column or FRED ID<input id="familyTarget" maxlength="100"></label>
+<label>Units<input id="familyUnits" maxlength="100"></label></div>
+<button type="button" id="applyFamily">Use these forecast settings</button><span id="familyNotice" role="status"></span>
+</details></div>
+<div id="exploreCustom" hidden><details><summary>Adapt the exploration template to a monthly CSV</summary>
+<p class="hint">Enter a numeric column name and its units, apply the template, then upload your CSV with a date column.</p>
+<label for="exploreTarget">Target column</label><input id="exploreTarget" maxlength="100" placeholder="e.g., sales">
+<label for="exploreUnits">Units</label><input id="exploreUnits" maxlength="100" placeholder="e.g., millions of dollars">
+<button type="button" id="applyExplore">Use this series in the five boxes</button><span id="exploreNotice" role="status"></span></details></div>
+</div><fieldset id="promptFields"><legend>Question and context</legend>
+<label class="hint-setting"><input type="checkbox" id="liveHints" checked> Show writing suggestions while I type</label>
+<span id="hintUpdate" class="sr-only" role="status"></span>
+<p id="fieldNotice" role="status" hidden></p>
+<div class="prompt-grid">
+<div class="wide">
+<label for="clarity">1. Clarity <span id="empty-clarity" class="empty-label" hidden>Needs detail</span></label><p class="hint" id="clarityHint">State the economic question directly. Name the outcome and what you want to forecast or estimate.</p>
+<textarea id="clarity" data-criterion="Clarity" aria-describedby="clarityHint" rows="2"></textarea><div id="help-clarity" class="field-help" hidden></div></div>
+<div>
+<label for="structure">2. Structure <span id="empty-structure" class="empty-label" hidden>Needs detail</span></label><p class="hint" id="structureHint">Put the task in order. What should the analyst do first, how should the result be assessed, and what should the conclusion report?</p>
+<textarea id="structure" data-criterion="Structure" aria-describedby="structureHint" rows="5"></textarea><div id="help-structure" class="field-help" hidden></div></div>
+<div>
+<label for="context">3. Context <span id="empty-context" class="empty-label" hidden>Needs detail</span></label><p class="hint" id="contextHint">Describe the data, units, timing, and assumptions the analyst needs to answer the question.</p>
+<textarea id="context" data-criterion="Context" aria-describedby="contextHint" rows="5"></textarea><div id="help-context" class="field-help" hidden></div></div>
+<div>
+<label for="role">4. Role <span id="empty-role" class="empty-label" hidden>Needs detail</span></label><p class="hint" id="roleHint">Give the analyst a perspective and an audience for the explanation.</p>
+<textarea id="role" data-criterion="Role" aria-describedby="roleHint" rows="4"></textarea><div id="help-role" class="field-help" hidden></div></div>
+<div>
+<label for="examples">5. Examples <span id="empty-examples" class="empty-label" hidden>Needs detail</span></label><p class="hint" id="examplesHint">Give one concrete case that shows what your instructions mean.</p>
+<textarea id="examples" data-criterion="Examples" aria-describedby="examplesHint" rows="4"></textarea><div id="help-examples" class="field-help" hidden></div></div>
+</div></fieldset>
+<details class="prompt-preview"><summary>Preview the prompt sent to Llama</summary><pre id="promptPreview"></pre></details>
+<div id="practiceActions"><button type="button" id="reviewDraft">Review my prompt</button>
+<span id="practiceStatus" role="status"></span>
+<div id="practiceNotes" hidden aria-label="Writing feedback"></div>
+</div>
+<div id="analysisControls"><label for="dataKind">Data structure</label>
+<select id="dataKind"><option value="auto">Detect from the question and data</option><option value="cross_section">Cross-sectional (independent units)</option><option value="monthly">Monthly time series</option></select>
+<label for="sourceMode">Data source</label>
+<select id="sourceMode"><option value="auto">Detect from my prompt</option><option value="local">Included data or CSV</option><option value="retail_demo">Included U.S. retail sales (2005–2024)</option><option value="ar_demo">Simulated monthly AR activity</option><option value="fred">FRED API</option><option value="eia">EIA API</option><option value="alpha">Alpha Vantage API</option><option value="custom">Custom website API</option></select>
+<label for="file">Optional data CSV</label><input type="file" accept=".csv,text/csv" id="file"><p class="note">A cross-sectional CSV needs one row per independent unit. A monthly CSV needs a date column. An uploaded CSV takes priority in automatic mode. Name an API in your prompt or select it above. For another provider, choose Custom website API.</p>
+<div id="sourcePanel" hidden><h2 id="sourceTitle">Connect a data source</h2><fieldset id="connectionInputs" style="border:0;padding:0;margin:0;min-width:0">
+<div id="fredFields"><p>Enter the FRED series you want to analyze. Higher-frequency observations are averaged by month.</p>
+<label for="fredIds">FRED series IDs, separated by commas</label><input type="text" id="fredIds" placeholder="UNRATE" maxlength="256" spellcheck="false"></div>
+<div id="webFields" hidden><p id="apiHelp"></p><button type="button" id="presetSettings">Use example connection settings</button>
+<label for="apiEndpoint">Provider’s HTTPS data URL (omit the key)</label><input id="apiEndpoint" type="url" placeholder="https://api.example.org/monthly" maxlength="3500" spellcheck="false">
+<p id="keyDestination" class="hint" aria-live="polite"></p>
+<label for="apiAuth">How does this endpoint authenticate?</label><select id="apiAuth"><option value="header">Named HTTP header</option><option value="query">Query parameter</option><option value="bearer">Bearer token</option><option value="none">No key required</option></select>
+<div id="paramRow"><label for="apiParam">Parameter or header name</label><input id="apiParam" spellcheck="false"></div>
+<label for="apiFormat">Response format</label><select id="apiFormat"><option value="json">JSON</option><option value="csv">CSV</option></select>
+<div id="pathRow"><label for="apiPath">JSON path to the records</label><input id="apiPath" placeholder="response.data (blank for a root list)" spellcheck="false"></div>
+<label for="apiDate">Date field</label><input id="apiDate" placeholder="date" spellcheck="false">
+<label for="apiValues">Numeric fields for analysis</label><input id="apiValues" placeholder="unemployment_rate=value" spellcheck="false">
+<p class="hint">Use a field name, or analysis_name=provider_field. Separate multiple fields with commas. The response must contain at most one row per month.</p></div>
+<div id="keyRow"><label for="sourceKey" id="keyLabel">Provider key</label><input type="password" id="sourceKey" autocomplete="off" spellcheck="false" autocapitalize="none" maxlength="2048">
+<p class="hint">Enter the key only here. <a id="fredKeyLink" href="https://fred.stlouisfed.org/docs/api/api_key.html" target="_blank" rel="noreferrer">Get your FRED key</a></p></div></fieldset>
+<button type="button" id="connectSource" class="primary">Import data and continue</button><span id="sourceStatus" role="status"></span></div>
+<button type="button" id="changeFred" hidden>Change FRED series IDs</button>
+<button type="button" id="saveInput" hidden>Download imported data (CSV)</button>
+<button type="submit" class="primary" id="run">Run with local Llama</button><button type="submit" id="reference">Run reference forecast (Python only)</button><span id="status" role="status"></span></div></form></section>
+<div id="analysisWorkspace" hidden>
+<section><h2>2. Prompt, Python and agent review</h2>
+<div class="workbench" aria-label="Active worker">
+<div class="worker" id="workerPromptReviewer"><svg viewBox="0 0 54 50" aria-hidden="true"><g class="figure" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+<path d="M8 9q9-5 17 1 10-6 19-1v26q-9-5-19 1-9-5-17-1Z" fill="#e3d9f0"/><path d="M25 11v23m-12-17 7 2m10-1 8-2" fill="none"/>
+<g class="hands"><path d="M33 31h13v10h-6l-4 4v-4h-3z" fill="#f5e6ad"/></g></g></svg><div><b>Prompt reviewer</b><small>Ready</small></div></div>
+<div class="worker" id="workerAnalyst"><svg viewBox="0 0 54 50" aria-hidden="true"><g class="figure" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+<rect x="9" y="13" width="30" height="24" rx="8" fill="#c8e1ef"/><path d="M24 13V7" fill="none"/><circle cx="24" cy="5" r="3" fill="#e0a041"/>
+<circle cx="18" cy="23" r="4" fill="white"/><circle cx="30" cy="23" r="4" fill="white"/><path d="M22 23h4m-7 7h10" fill="none"/>
+<g class="hands"><path d="m34 39 10-15 4 3-10 15-6 3z" fill="#efc76e"/></g></g></svg><div><b>Analyst</b><small>Ready</small></div></div>
+<div class="worker" id="workerPython"><svg viewBox="0 0 54 50" aria-hidden="true"><g class="figure" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+<rect x="5" y="10" width="42" height="30" rx="5" fill="#cde9dd"/><path d="M7 18h37M15 26l4 3-4 3" fill="none"/><path class="hands" d="M26 32h8" fill="none"/><circle cx="12" cy="14" r="1" fill="#246558"/></g></svg><div><b>Python</b><small>Ready</small></div></div>
+<div class="worker" id="workerCritic"><svg viewBox="0 0 54 50" aria-hidden="true"><g class="figure" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+<path d="m10 16-1-8 9 5h11l9-5-1 9q5 22-13 23Q6 39 10 16z" fill="#ecd9be"/><circle cx="18" cy="22" r="4" fill="white"/>
+<circle cx="28" cy="22" r="4" fill="white"/><path d="m20 28 4 4 3-4" fill="#cc9347"/>
+<g class="hands"><path d="m38 32 8 8" fill="none"/><circle cx="35" cy="28" r="7" fill="#d7ebee" fill-opacity=".8"/></g></g></svg><div><b>Critic</b><small>Ready</small></div></div></div>
+<p id="phase" role="status">Ready for a question.</p>
+<div id="trace" aria-live="polite" aria-label="Round-by-round responses">Prompt feedback, the analyst’s code and the critic’s decisions will appear here.</div>
+<div id="rewritePanel" hidden><h2>A clearer way to ask</h2>
+<p>The analysis can run as written. You can use this suggestion, edit it first, or keep your original wording.</p>
+<details><summary>Your original wording</summary><pre id="rewriteOriginal"></pre></details>
+<label for="rewriteText">Suggested wording · editable</label>
+<textarea id="rewriteText" rows="4" maxlength="2400"></textarea>
+<button id="useRewrite" type="button" class="primary">Use this wording and continue</button>
+<button id="keepOriginal" type="button">Keep my wording and continue</button>
+<small id="rewriteStatus" role="status"></small></div>
+<div id="clarificationPanel" hidden><h2>One more detail</h2><label id="reviewQuestion" for="clarificationAnswer"></label>
+<textarea id="clarificationAnswer" rows="3" maxlength="2000" placeholder="Answer the reviewer here."></textarea>
+<button id="continueReview" type="button" class="primary">Send answer and continue</button>
+<small id="answerStatus" role="status"></small></div></section>
+<section id="results" hidden><h2>3. Results and review</h2>
+<label for="versions">Completed versions</label><select id="versions"></select>
+<p id="summary"></p><p id="interpretation"></p><p id="comparison" class="comparison" hidden></p>
+<div class="tablebox"><table id="scores"></table></div>
+<div class="result-controls"><a class="download" id="csvExport" download>Download CSV</a>
+<a class="download" id="pdfExport" download>Download PDF</a><button id="download">Download Python</button></div>
+<div class="feedback-panel"><h2>4. Give feedback</h2><label for="feedback">What should the analyst change?</label>
+<p class="hint">For example, “Keep the retail sales target and holdout fixed. Add lag 6 to the forecast and explain whether it changes the result.” Feedback creates a new version on the same data.</p>
+<textarea id="feedback" rows="3" maxlength="2000" placeholder="Write one change to the analysis or its explanation."></textarea>
+<button id="applyFeedback" type="button" class="primary">Apply feedback with local Llama</button><span id="feedbackStatus" role="status"></span>
+</div></section></div></main>
+<script>
+const $ = id => document.getElementById(id);
+const labNameField = $('labName');
+const labNameKey = 'econ422.studio.labName';
+const labHeader = $('labHeader'), editLabName = $('editLabName');
+function showLabNameEditor(open) {
+    $('labNameEditor').hidden = !open;
+    editLabName.setAttribute('aria-expanded', String(open));
+}
+labHeader.addEventListener('pointerenter', e => {
+    if (e.pointerType !== 'touch') showLabNameEditor(true);
+});
+labHeader.addEventListener('pointerleave', () => {
+    if (!labHeader.contains(document.activeElement)) showLabNameEditor(false);
+});
+editLabName.addEventListener('focus', () => showLabNameEditor(true));
+editLabName.addEventListener('click', () => {
+    showLabNameEditor(true);
+    labNameField.focus();
+});
+labHeader.addEventListener('focusout', e => {
+    if (!labHeader.contains(e.relatedTarget)) showLabNameEditor(false);
+});
+labHeader.addEventListener('keydown', e => {
+    if (e.key === 'Escape' || (e.key === 'Enter' && e.target === labNameField)) {
+        e.preventDefault();
+        editLabName.focus();
+        showLabNameEditor(false);
+    }
+});
+
+function updateLabOwner() {
+    const name = labNameField.value.trim();
+    $('labOwner').textContent = name ? name + '’s ' : '';
+}
+try { labNameField.value = sessionStorage.getItem(labNameKey) || ''; } catch {}
+updateLabOwner();
+labNameField.addEventListener('input', () => {
+    updateLabOwner();
+    const name = labNameField.value.trim();
+    try {
+        if (name) sessionStorage.setItem(labNameKey, name);
+        else sessionStorage.removeItem(labNameKey);
+    } catch {} // The heading still works when browser storage is unavailable.
+});
+
+const fields = Array.from(document.querySelectorAll('#promptFields textarea'));
+const fieldHelp = __FIELD_HELP__;
+const familyFields=__FAMILY_FIELDS__, familyDefaults=__FAMILY_CONFIGS__;
+let familyCard=null, familyConfig=null, familyVersion=0, familyPending=false;
+const workedExamples = {
+    cross: __CROSS_FIELDS__, crossScreen: __CROSS_SCREEN_FIELDS__, tsEstimate: __TS_EST_FIELDS__, tsEstimateFred: __TS_EST_FRED_FIELDS__,
+    dml: __DML_FIELDS__,
+    dmlFred: __DML_FRED_FIELDS__,
+    forecast: __FORECAST_FIELDS__,
+    retailFred: __RETAIL_FRED_FIELDS__, explore: __EXPLORE_FIELDS__, exploreFred: __EXPLORE_FRED_FIELDS__,
+    estimate: __REGRESSION_FIELDS__
+};
+let report = null;
+let exampleDraft = false;
+let retailExample = false;
+let exploreExample = false;
+let csvExplore = null;
+let tsEstimateExample = false;
+let pending = null;
+let rewriteOffer = null;
+let sourceRequest = null;
+let activeProvider = null;
+let sourceSettings = {};
+let destination = "";
+let importedInput = null;
+function closeSource(){
+    sourceRequest = null;
+    activeProvider = null;
+    $('sourceKey').value = '';
+    $('connectionInputs').disabled = false;
+    $('sourcePanel').hidden = true;
+}
+function forgetInput(){
+    closeSource();
+    importedInput = null;
+    $('saveInput').hidden = true;
+    $('changeFred').hidden = true;
+}
+function assemblePrompt() {
+    return fields.flatMap((field,i) => field.value.trim() ? [(i+1)+'. '+field.dataset.criterion+'\n'+field.value.trim()] : []).join('\n\n');
+}
+let busy = false;
+let hintVersion = 0;
+let hintTimer;
+let hintRunning = false;
+let pendingHint = null;
+const mutedFields = new Set();
+
+function updatePreview() {
+    const prompt = assemblePrompt();
+    $('promptPreview').textContent = prompt;
+    $('run').disabled = busy || !prompt || familyPending;
+    const mode = $('sourceMode').value;
+    const sample = mode === 'fred' ? workedExamples.retailFred : workedExamples.forecast;
+    const screenSample = mode==='fred' ? workedExamples.dmlFred : workedExamples.dml;
+    const screen = fields.every(field => field.value.trim() === screenSample[field.id]);
+    const matches = example => fields.every(field => field.value.trim() === example[field.id]);
+    const crossScreen = matches(workedExamples.crossScreen);
+    const cross = crossScreen || matches(workedExamples.cross);
+    const ts = matches(mode==='fred' ? workedExamples.tsEstimateFred : workedExamples.tsEstimate);
+    const estimate = cross || ts;
+    const kind = $('dataKind').value;
+    $('reference').textContent = crossScreen ? 'Run DML assessment (Python only)' : estimate ? 'Run DML estimate (Python only)' : screen ? 'Run DML assessment (Python only)' : 'Run reference forecast (Python only)';
+    $('reference').disabled = $('run').disabled || (cross && (kind==='monthly' || !['auto','local'].includes(mode))) ||
+        (!cross && kind==='cross_section') || (estimate || screen ? !(ts && mode==='ar_demo') && !['auto','local','fred'].includes(mode) :
+        (!['auto','local','fred'].includes(mode) || Boolean($('file').files[0]) ||
+         fields.some(field => field.value.trim() !== sample[field.id])));
+    if(matches(workedExamples.estimate)){
+        $('reference').textContent='Run regression (Python only)';
+        $('reference').disabled=busy || kind==='cross_section' || !['local','auto'].includes(mode) || Boolean($('file').files[0]);
+    }
+    const exploratory = matches(mode==='fred' ? workedExamples.exploreFred : workedExamples.explore) ||
+        (csvExplore && matches(csvExplore.fields));
+    if (matches(sample) && mode==='retail_demo') $('reference').disabled = busy || kind==='cross_section';
+    if (exploratory) {
+        $('reference').textContent='Run exploration (Python only)';
+        $('reference').disabled=busy || kind==='cross_section' || (csvExplore ? !$('file').files[0] :
+            !['auto','local','retail_demo','fred'].includes(mode));
+    }
+    const activeFamily=Object.entries(familyFields).find(([,spec])=>matches(spec))?.[0];
+    if(activeFamily || (familyConfig && matches(familyConfig.fields))){
+        const config=familyConfig || familyDefaults[activeFamily];
+        $('reference').textContent=config.mode==='compare'?'Compare families (Python only)':'Run '+({hybrid:'hybrid',ml:'ML-only',classical:'classical'})[config.mode]+' forecast (Python only)';
+        const sourceModes={bundled:['auto','local','retail_demo','fred'],activity:['ar_demo','local','auto'],csv:['local','auto'],fred:['fred']};
+        $('reference').disabled=busy || kind==='cross_section' || !sourceModes[config.source].includes(mode) ||
+            (config.source==='csv' && !$('file').files[0]) || (config.source!=='csv' && Boolean($('file').files[0]));
+    }
+    if (importedInput?.starter) {
+        const labels = {exploration:'Run exploration',forecast:'Run reference forecast',ts_dml:'Run DML estimate',rcf_dml_screen:'Run DML assessment'};
+        $('reference').textContent = (importedInput.starterTask?.startsWith('family:')?'Run forecast':labels[importedInput.starterTask])+' (Python only)';
+        $('reference').disabled = busy || kind==='cross_section' || !matches(importedInput.starter);
+    }
+    if(familyPending) $('reference').disabled=true;
+    $('reference').hidden = $('reference').disabled;
+    $('reference').classList.toggle('primary', !$('reference').hidden);
+    $('run').classList.toggle('primary', $('reference').hidden);
+    const started=fields.some(f=>f.value.trim());
+    const missing = [];
+    for (const field of fields) {
+        const empty = started && !field.value.trim();
+        field.classList.toggle('needs-detail', empty);
+        $('empty-'+field.id).hidden = !empty;
+        if (empty) missing.push(field.dataset.criterion);
+    }
+    const notice = $('fieldNotice');
+    const message = missing.length ? 'Please complete '+missing.join(', ')+'.' : '';
+    $('reviewDraft').disabled=!started || reviewPending || busy;
+    if (notice.textContent !== message) notice.textContent = message;
+    notice.hidden = !missing.length;
+}
+function clearFieldHelp(){
+    for (const field of fields) {
+        const help = $('help-'+field.id);
+        help.hidden = true;
+        help.replaceChildren();
+    }
+    $('hintUpdate').textContent = '';
+}
+function invalidateHints(){
+    clearTimeout(hintTimer);
+    pendingHint = null;
+    return ++hintVersion;
+}
+function showFieldHelp(candidates, source){
+    const labels = [];
+    for (const field of fields) {
+        const options = candidates[field.id];
+        if (!options?.length) continue;
+        const help = $('help-'+field.id);
+        // Keep a button in place if a keyboard user has already reached it.
+        if (help.contains(document.activeElement) && !help.inert) continue;
+        help.inert = false;
+        help.replaceChildren();
+        const append = Boolean(field.value.trim());
+        const instruction = append ? 'Add a sentence to your draft' : 'Choose wording or write your own';
+        help.append(node('b', fieldHelp[field.id].question), node('small', source+' · '+instruction));
+        for (const wording of options) {
+            const button = node('button', wording);
+            button.type = 'button';
+            button.className = 'candidate';
+            button.setAttribute('aria-label', (append?'Append to ':'Use in ')+field.dataset.criterion+': '+wording);
+            button.onclick = () => {
+                if(!$('analysisWorkspace').hidden) clearAnalysis();
+                exampleDraft=false;
+                clearPracticeReview();
+                field.value = append ? field.value+(field.value.endsWith('\n')?'':'\n')+wording : wording;
+                field.setCustomValidity('');
+                field.focus();
+                updatePreview();
+                // Other boxes can now use the accepted wording as context.
+                scheduleHints();
+            };
+            help.append(button);
+        }
+        const manual = node('button','Write my own');
+        manual.type = 'button';
+        manual.className = 'manual';
+        manual.onclick = () => {
+            mutedFields.add(field.id);
+            field.focus();
+            scheduleHints();
+        };
+        help.append(manual);
+        help.hidden = false;
+        labels.push(field.dataset.criterion);
+    }
+    if (labels.length) $('hintUpdate').textContent = 'Writing suggestions available for '+labels.join(', ')+'.';
+}
+async function fetchLatestHints(){
+    if (hintRunning || !pendingHint) return;
+    const {version, body} = pendingHint;
+    pendingHint = null;
+    hintRunning = true;
+    try {
+        const response = await fetch('/writing-hints',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if (!response.ok) return;
+        const result = await response.json();
+        if (version === hintVersion) showFieldHelp(result.candidates, result.source);
+    } catch {
+        // The built-in choices are already usable if the local server disconnects.
+    } finally {
+        hintRunning = false;
+        if (pendingHint) void fetchLatestHints();
+    }
+}
+function scheduleHints(active = null){
+    const version = invalidateHints();
+    if (busy || !$('liveHints').checked) { clearFieldHelp(); return; }
+    const targets = fields.filter(f => (!f.value.trim() || f === active) && !mutedFields.has(f.id)).map(f => f.id);
+    // Keep visible cards in place while typing, but only allow choices for the latest draft.
+    for (const field of fields) {
+        const help = $('help-'+field.id);
+        help.inert = true;
+        if (!targets.includes(field.id)) help.hidden = true;
+    }
+    if (!targets.length) { clearFieldHelp(); return; }
+    hintTimer = setTimeout(() => {
+        const prompt_fields = Object.fromEntries(fields.map(f => [f.id, f.value.trim()]));
+        const cross = $('dataKind').value==='cross_section';
+        const starters = Object.fromEntries(targets.map(key =>
+            [key, cross ? [workedExamples.cross[key]] : prompt_fields[key] ? fieldHelp[key].continuations : fieldHelp[key].options]));
+        showFieldHelp(starters, 'Built-in starters');
+        if (!Object.values(prompt_fields).some(Boolean) || Array.from(assemblePrompt()).length > 8000) return;
+        pendingHint = {version, body:{prompt_fields, targets, custom_csv:Boolean($('file').files[0]), data_kind:$('dataKind').value, source_mode:$('sourceMode').value}};
+        void fetchLatestHints();
+    }, 800);
+}
+function loadExample(example, sourceMode='auto', dataKind=[workedExamples.cross, workedExamples.crossScreen].includes(example) ? 'cross_section' : 'auto') {
+    clearAnalysis();
+    clearPracticeReview();
+    exampleDraft=Boolean(example);
+    familyVersion++; familyConfig=null; familyPending=false;
+    familyCard=Object.keys(familyFields).find(k=>familyFields[k]===example) || null;
+    $('familyCustomize').hidden=!familyCard;
+    $('familyNotice').textContent='';
+    $('familySettings').open=false;
+    if(familyCard) showFamilySettings(familyDefaults[familyCard]);
+    forgetInput();
+    csvExplore = null;
+    exploreExample = example===workedExamples.explore || example===workedExamples.exploreFred;
+    $('exploreCustom').hidden=!exploreExample;
+    $('exploreNotice').textContent='';
+    tsEstimateExample = example === workedExamples.tsEstimate || example === workedExamples.tsEstimateFred;
+    retailExample = example === workedExamples.forecast || example === workedExamples.retailFred;
+    $('sourceMode').value = sourceMode;
+    $('dataKind').value = dataKind;
+    $('fredIds').value = '';
+    invalidateHints();
+    clearFieldHelp();
+    mutedFields.clear();
+    for (const field of fields) {
+        field.value = example?.[field.id] || '';
+        field.setCustomValidity('');
+    }
+    updatePreview();
+}
+for (const field of fields) {
+    field.addEventListener('input', () => {
+        if(!$('analysisWorkspace').hidden) clearAnalysis();
+        exampleDraft=false;
+        clearPracticeReview();
+        field.setCustomValidity('');
+        updatePreview();
+        scheduleHints(field);
+    });
+    field.addEventListener('focus', () => {
+        if (!busy && !field.value.trim() && !mutedFields.has(field.id)) scheduleHints(field);
+    });
+    field.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !$('help-'+field.id).hidden) {
+            mutedFields.add(field.id);
+            scheduleHints();
+        }
+    });
+}
+$('liveHints').onchange = () => { mutedFields.clear(); scheduleHints(fields.find(f=>f===document.activeElement)); };
+$('forecast').onclick = () => {
+    const fred = $('sourceMode').value === 'fred';
+    $('file').value = '';
+    loadExample(fred ? workedExamples.retailFred : workedExamples.forecast, fred ? 'fred' : 'retail_demo');
+};
+$('explore').onclick = () => {
+    const fred=$('sourceMode').value==='fred'; $('file').value='';
+    loadExample(fred ? workedExamples.exploreFred : workedExamples.explore, fred ? 'fred':'retail_demo');
+};
+$('applyExplore').onclick = () => {
+    const target=$('exploreTarget').value.trim(), units=$('exploreUnits').value.trim();
+    if (!target || !units || target==='date') { $('exploreNotice').textContent='Enter the target column and its units.'; return; }
+    const spec={...workedExamples.explore, clarity:workedExamples.explore.clarity.split('MRTSSM44000USN').join(target),
+        context:'Use the uploaded monthly CSV. The target column is '+target+', measured in '+units+'. Keep the data in the supplied units.'};
+    loadExample(spec,'local'); csvExplore={target,units,fields:spec};
+    $('exploreCustom').hidden=false; $('exploreNotice').textContent='Upload the CSV and review your five entries.'; updatePreview();
+};
+$('estimate').onclick = () => { $('file').value=''; loadExample(workedExamples.estimate,'local'); };
+$('crossAssess').onclick = () => { $('file').value=''; loadExample(workedExamples.crossScreen); };
+$('crossExample').onclick = () => { $('file').value=''; loadExample(workedExamples.cross); };
+$('tsEstimate').onclick = () => {
+    const fred = $('sourceMode').value==='fred';
+    $('file').value=''; loadExample(fred ? workedExamples.tsEstimateFred : workedExamples.tsEstimate, fred ? 'fred':'ar_demo');
+};
+$('dataKind').onchange = () => { clearAnalysis(); forgetInput(); updatePreview(); scheduleHints(); };
+$('dmlExample').onclick = () => {
+    const fred = $('sourceMode').value === 'fred';
+    $('file').value=''; loadExample(fred ? workedExamples.dmlFred : workedExamples.dml, fred ? 'fred':'local');
+};
+$('rough').onclick = () => loadExample(__ROUGH_FIELDS__,'retail_demo');
+$('incomplete').onclick = () => {
+    loadExample({clarity:__INCOMPLETE_CLARITY__,context:'Use the included monthly retail sales data.'},'retail_demo');
+    scheduleHints();
+};
+const estimationExercises = {
+    estimationIncomplete: {
+        clarity: "Estimate the relationship between training_hours and earnings in the included household data.",
+        context: workedExamples.cross.context
+    },
+    estimationRough: {
+        clarity: "training_hours and earnings: what's the slope?",
+        structure: "use DML, give me the estimate and an interval",
+        context: "one row per household, adjust for education and experience",
+        role: "explain it to ECON 422",
+        examples: "what does one more hour of training mean?"
+    }
+};
+for (const [id, draft] of Object.entries(estimationExercises)) {
+    $(id).onclick=()=>{
+        $('file').value='';
+        loadExample(draft, 'local', 'cross_section');
+        scheduleHints();
+    };
+}
+$('file').addEventListener('change', () => { clearAnalysis(); forgetInput(); updatePreview(); scheduleHints(); });
+$('sourceMode').onchange = () => {
+    clearAnalysis();
+    clearPracticeReview();
+    forgetInput();
+    $('fredIds').value = '';
+    if(familyCard && $('sourceMode').value==='fred'){
+        $('familySource').value='fred'; $('familyUnits').value='original series units'; lockBundledFields('fred');
+    }
+    const context = $('context');
+    const from = $('sourceMode').value==='fred' ? workedExamples.tsEstimate : workedExamples.tsEstimateFred;
+    const to = $('sourceMode').value==='fred' ? workedExamples.tsEstimateFred : workedExamples.tsEstimate;
+    if (tsEstimateExample && ['auto','local','fred','ar_demo'].includes($('sourceMode').value)) {
+        for(const f of fields) if(f.value.trim()===from[f.id]) f.value=to[f.id];
+        if(to===workedExamples.tsEstimate && ['auto','local'].includes($('sourceMode').value)) $('sourceMode').value='ar_demo';
+    }
+    if (!tsEstimateExample && [workedExamples.dml.context, workedExamples.dmlFred.context].includes(context.value)) {
+        context.value = $('sourceMode').value === 'fred' ? workedExamples.dmlFred.context : workedExamples.dml.context;
+    }
+    if (exploreExample && [workedExamples.explore.context, workedExamples.exploreFred.context].includes(context.value)) {
+        context.value=$('sourceMode').value==='fred' ? workedExamples.exploreFred.context : workedExamples.explore.context;
+    }
+    if (retailExample && [workedExamples.forecast.context, workedExamples.retailFred.context].includes(context.value)) {
+        context.value = $('sourceMode').value === 'fred' ? workedExamples.retailFred.context : workedExamples.forecast.context;
+    }
+    updatePreview(); scheduleHints();
+};
+function showFamilySettings(cfg){
+    $('familyBaseLabel').hidden=cfg.mode==='ml'; $('familyLearnerLabel').hidden=cfg.mode==='classical';
+    $('familyBase').value=cfg.base || 'trend'; $('familyLearner').value=cfg.learner || 'forest';
+    $('familyTarget').value=cfg.target; $('familyUnits').value=cfg.units; $('familySource').value=cfg.source;
+    lockBundledFields(cfg.source);
+}
+function lockBundledFields(source){
+    $('familyTarget').readOnly=source==='bundled' || source==='activity';
+    $('familyUnits').readOnly=source!=='csv';
+}
+for(const key of Object.keys(familyFields)){
+    $(key).onclick=()=>{
+        const fred=$('sourceMode').value==='fred';
+        $('file').value=''; loadExample(familyFields[key],fred?'fred':'retail_demo');
+        if(fred){ $('familySource').value='fred'; $('familyUnits').value='original series units'; lockBundledFields('fred'); }
+    };
+}
+const customFamilies={buildHybrid:'seasonForest',buildML:'mlForest',buildClassical:'classicAR'};
+for(const [id,key] of Object.entries(customFamilies)){
+    $(id).onclick=()=>{
+        $('file').value='';
+        loadExample(null);
+        exampleDraft=true;
+        familyCard=key;
+        showFamilySettings(familyDefaults[key]);
+        $('familyCustomize').hidden=false;
+        $('familySettings').open=true;
+        $(familyDefaults[key].mode==='ml'?'familyLearner':'familyBase').focus();
+    };
+}
+function familySettingsEdited(){
+    if(!familyCard) return;
+    familyPending=true;
+    familyVersion++;
+    clearAnalysis();
+    clearPracticeReview();
+    $('familyNotice').textContent='Apply these settings to update the prompt.';
+    updatePreview();
+}
+for(const id of ['familyBase','familyLearner']) $(id).onchange=familySettingsEdited;
+for(const id of ['familyTarget','familyUnits']) $(id).addEventListener('input',familySettingsEdited);
+$('familySource').onchange=()=>{
+    lockBundledFields($('familySource').value);
+    if($('familySource').value==='bundled'){ $('familyTarget').value='MRTSSM44000USN'; $('familyUnits').value='millions of dollars'; }
+    else if($('familySource').value==='activity'){ $('familyTarget').value='activity'; $('familyUnits').value='simulated index units'; }
+    else if($('familySource').value==='fred') $('familyUnits').value='original series units';
+    familySettingsEdited();
+};
+$('applyFamily').onclick=async()=>{
+    if(!familyCard || busy) return;
+    const key=familyCard,version=++familyVersion,mode=familyDefaults[key].mode;
+    const read=()=>({mode,base:mode==='ml'?'':$('familyBase').value,learner:mode==='classical'?'':$('familyLearner').value,
+        target:$('familyTarget').value.trim(),source:$('familySource').value,units:$('familyUnits').value.trim()});
+    const config=read(),snapshot=JSON.stringify(config);
+    try{
+        const resp=await fetch('/family-template',{method:'POST',headers:{'Content-Type':'application/json'},body:snapshot});
+        const reply=await resp.json();
+        if(version!==familyVersion || JSON.stringify(read())!==snapshot) return;
+        if(!resp.ok) throw Error(reply.error || 'Check the source and forecast settings.');
+        if(config.source!=='csv') $('file').value='';
+        loadExample(reply.fields,{bundled:'retail_demo',activity:'ar_demo',csv:'local',fred:'fred'}[config.source]);
+        familyCard=key; familyConfig={...config,fields:reply.fields}; showFamilySettings(config);
+        $('familyCustomize').hidden=false; $('familySettings').open=true; $('dataKind').value='monthly';
+        selectTemplate({hybrid:'buildHybrid',ml:'buildML',classical:'buildClassical',compare:'familyCompare'}[mode]);
+        $('familyNotice').textContent=config.source==='csv'?'Upload your CSV and run.':'Review the five fields and run.';
+        updatePreview();
+    }catch(e){if(version===familyVersion) $('familyNotice').textContent=e.message;}
+};
+const galleryGroups={"forecasting-blank": ["incomplete", "rough"], "hybrid": ["buildHybrid", "seasonForest", "trendLasso", "arForest"], "ml": ["buildML", "forecast", "mlForest", "mlLasso"], "classic": ["buildClassical", "classicAR", "classicMA", "classicTrend"], "forecast": ["explore", "familyCompare"], "regression": ["estimate"], "cross": ["crossAssess", "crossExample"], "ts": ["dmlExample", "tsEstimate"], "estimation-blank": ["estimationIncomplete", "estimationRough"]};
+const galleryTitles={"buildClassical":"Choose a classical model", "buildML":"Choose an ML model", "buildHybrid":"Build a hybrid", "incomplete": "Try an incomplete prompt", "rough": "Try a rough prompt", "seasonForest": "Trend and seasonality + forest", "trendLasso": "Trend + LASSO", "arForest": "AR(1) + forest", "forecast": "Forecast example", "mlForest": "Random forest", "mlLasso": "LASSO", "classicAR": "AR(1)", "classicMA": "MA(1)", "classicTrend": "Trend and seasonality", "explore": "Explore a time series", "familyCompare": "Compare forecast families", "estimate": "Estimation example", "crossAssess": "Cross-sectional DML assessment", "crossExample": "Cross-sectional DML estimate", "dmlExample": "Time-series DML assessment", "tsEstimate": "Time-series DML estimate", "estimationIncomplete": "Try an incomplete estimation prompt", "estimationRough": "Try a rough estimation prompt"};
+const divisionGroups={"forecasting": ["forecasting-blank", "hybrid", "ml", "classic", "forecast"], "estimation": ["estimation-blank", "regression", "cross", "ts"]};
+let activeDivision=null, activeGroup=null, reviewPending=false, reviewVersion=0;
+function clearPracticeReview(){
+    reviewVersion++;reviewPending=false;
+    $('practiceNotes').replaceChildren();$('practiceNotes').hidden=true;
+    $('practiceStatus').textContent='';
+}
+async function reviewDraft(){
+    if(busy || reviewPending) return;
+    const draft=Object.fromEntries(fields.map(f=>[f.id,f.value.trim()]));
+    if(!Object.values(draft).some(Boolean)) return;
+    const version=++reviewVersion;
+    reviewPending=true;updatePreview();
+    $('practiceStatus').textContent='Reviewing the five fields…';
+    try{
+        const response=await fetch('/practice-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt_fields:draft})});
+        const result=await response.json();
+        if(version!==reviewVersion) return;
+        if(!response.ok) throw Error(result.error || 'Review unavailable.');
+        const feedback=$('practiceNotes');feedback.replaceChildren();
+        for(const field of fields){
+            const row=node('p','');row.append(node('strong',field.dataset.criterion+' · '),node('span',result.notes[field.id]));
+            feedback.append(row);
+        }
+        feedback.hidden=false;$('practiceStatus').textContent=result.source;
+    }catch(error){if(version===reviewVersion) $('practiceStatus').textContent=error.message;}
+    finally{if(version===reviewVersion){reviewPending=false;updatePreview();}}
+}
+function browseGallery(group){
+    activeGroup=group;
+    for(const key of divisionGroups[activeDivision]){
+        $('category-'+key).setAttribute('aria-pressed',String(key===group));
+        $('shelf-'+key).hidden=key!==group;
+    }
+    updatePreview();
+}
+function startBlank(group=activeDivision+'-blank'){
+    if(busy) return;
+    const keepData=!group.endsWith('-blank');
+    const source=keepData ? $('sourceMode').value : 'auto';
+    const kind=keepData ? $('dataKind').value : 'auto';
+    if(!keepData) $('file').value='';
+    loadExample(null,source);
+    $('dataKind').value=kind;
+    browseGallery(group);
+    selectTemplate(null);
+}
+function showDivision(id){
+    if(busy || id===activeDivision) return;
+    activeDivision=id;
+    for(const name of Object.keys(divisionGroups)){
+        const selected=name===id, tab=$('division-'+name);
+        tab.setAttribute('aria-selected',String(selected));
+        tab.setAttribute('tabindex',selected?'0':'-1');
+        $('panel-'+name).hidden=!selected;
+    }
+    startBlank();
+}
+for(const [idx,name] of Object.keys(divisionGroups).entries()){
+    const tab=$('division-'+name);
+    tab.onclick=()=>showDivision(name);
+    tab.addEventListener('keydown',event=>{
+        const keys=Object.keys(divisionGroups);
+        const target={ArrowRight:(idx+1)%keys.length,ArrowLeft:(idx+keys.length-1)%keys.length,Home:0,End:keys.length-1}[event.key];
+        if(target===undefined) return;
+        event.preventDefault();showDivision(keys[target]);$('division-'+keys[target]).focus();
+    });
+}
+function selectTemplate(id){
+    for(const key of Object.keys(galleryTitles)) $(key).setAttribute('aria-pressed',String(key===id));
+    $('templateSelection').textContent=id===null?'Writing your own '+(activeDivision==='forecasting'?'forecasting':'estimation')+' prompt':'Working from · '+galleryTitles[id];
+}
+for(const group of Object.values(divisionGroups).flat()){
+    $('category-'+group).onclick=()=>{
+        if (group.endsWith('-blank') || (exampleDraft && group!==activeGroup)) startBlank(group);
+        else browseGallery(group);
+    };
+}
+$('reviewDraft').onclick=reviewDraft;
+for(const ids of Object.values(galleryGroups)){
+    for(const id of ids){
+        const load=$(id).onclick;
+        $(id).onclick=()=>{
+            if(busy) return;
+            load();
+            selectTemplate(id);
+        };
+    }
+}
+const runs = [];
+const workers = ['Prompt reviewer','Analyst', 'Python', 'Critic'];
+function node(tag,text){const el=document.createElement(tag);el.textContent=text;return el}
+function setWorker(role,message,round) {
+    const active = (role || '').split(' · ')[0];
+    for (const name of workers) {
+        const card=$(name==='Prompt reviewer'?'workerPromptReviewer':'worker'+name), working=name===active;
+        card.classList.toggle('active', working);
+        card.querySelector('small').textContent=working?'Working':busy?'Waiting':'Ready';
+    }
+    $('phase').textContent=(round?'Round '+round+' · ':'')+message;
+}
+function badgeFor(e) {
+    const known = {screen_complete:['compute','✓ Assessment complete'], review_note:['draft','✎ Review note'], accept:['accept','✓ Accepted'],revise:['revise','↻ Revise'],
+        ask_user:['ask','? Clarification'], 'clarification proposed':['ask','? Clarification proposed'],
+        stopped:['stop','! Stopped'], feedback:['draft','✎ Feedback'], answered:['ask','↳ User reply'], suggestion:['draft','✎ Writing suggestion']};
+    if(known[e.decision]) return known[e.decision];
+    if(e.code && e.role==='Analyst') return ['draft','{ } Code proposed'];
+    if(e.role==='Python') return ['compute',e.evidence?'▦ Evidence ready':'▦ Python'];
+    return ['draft',e.role.includes('result review')?'✎ Interpretation':'• Response'];
+}
+function eventView(e) {
+    if(e.phase==='working'){setWorker(e.role,e.message,e.round);return}
+    const [kind,label]=badgeFor(e), box=node('div',''), head=node('div','');
+    box.className='trace '+kind;head.className='trace-head';
+    const chip=node('span',label);chip.className='badge';
+    head.append(chip,node('strong',(e.round?'Round '+e.round+' · ':'')+e.role));box.append(head,node('p',e.message));
+    if(e.code)box.append(node('pre',e.code));
+    if(e.criteria){const d=node('details',''),list=node('ul',''); d.open=e.decision==='ask_user';list.className='criteriaList';
+        for(const [key,v] of Object.entries(e.criteria)){const li=node('li','');li.append(node('b',key[0].toUpperCase()+key.slice(1)+'. '),node('span',v));list.append(li)}
+        d.append(node('summary','Writing feedback on all five criteria'),list);box.append(d)}
+    if(e.suggested_prompt){const d=node('details','');d.open=e.decision==='ask_user';
+        d.append(node('summary','Suggested wording'),node('p',e.suggested_prompt));box.append(d)}
+    if(e.evidence){const d=node('details','');d.append(node('summary','View execution evidence'),node('pre',JSON.stringify(e.evidence,null,2)));box.append(d)}
+    const trace=$('trace'), atBottom=trace.scrollHeight-trace.scrollTop-trace.clientHeight<45;
+    trace.append(box);if(atBottom)trace.scrollTop=trace.scrollHeight;
+}
+function clearAnalysis(){
+    report=null;
+    runs.length=0;
+    pending=null;
+    rewriteOffer=null;
+    for(const id of ['analysisWorkspace','results','clarificationPanel','rewritePanel','comparison']) $(id).hidden=true;
+    for(const id of ['versions','scores','trace']) $(id).replaceChildren();
+    for(const id of ['status','summary','interpretation','comparison','feedbackStatus']) $(id).textContent='';
+    $('feedback').value='';
+    $('feedback').disabled=true;
+    $('applyFeedback').disabled=true;
+    setWorker('', 'Ready for a question.');
+}
+function showReport(r) {
+    report=r;$('results').hidden=false;$('summary').textContent=r.summary;$('interpretation').textContent=r.interpretation;
+    const t=$('scores');t.replaceChildren();t.classList.toggle('diagnostics',['cross_dml','ts_dml','rcf_dml_screen'].includes(r.task));
+    for(const [i,row] of [r.columns,...r.rows].entries()){
+        const tr=node('tr','');for(const [col,v] of row.entries()){
+            const cell=node(i?'td':'th',typeof v==='number'?v.toFixed(4):v);
+            if(i && col===1 && ['cross_dml','ts_dml','rcf_dml_screen'].includes(r.task))cell.dataset.status=v;
+            tr.append(cell);
+        }t.append(tr)}
+    $('comparison').hidden=!r.parent_id;
+    if(r.parent_id) $('comparison').textContent='Feedback: '+r.feedback.at(-1).text+'\nPrevious result: '+r.previous_summary+'\n'+r.changes.join('\n');
+    $('csvExport').href='/reports/'+r.id+'.csv';$('pdfExport').href='/reports/'+r.id+'.pdf';
+    $('versions').value=r.id;
+    syncControls();
+}
+function syncControls(){
+    for(const id of ['promptFields','dataKind','sourceMode','file','applyExplore']) $(id).disabled=busy;
+    for(const key of [...Object.keys(galleryTitles),'applyFamily','familyBase','familyLearner','familyTarget','familyUnits','familySource']) $(key).disabled=busy;
+    for(const [id,groups] of Object.entries(divisionGroups)){
+        $('division-'+id).disabled=busy;
+        for(const group of groups) $('category-'+group).disabled=busy;
+    }
+    $('versions').disabled=busy;
+    $('changeFred').disabled=busy;
+    $('continueReview').disabled=busy;
+    $('keepOriginal').disabled=busy;$('useRewrite').disabled=busy;
+    $('applyFeedback').disabled=busy || !report || report!==runs.at(-1);
+    $('feedback').disabled=$('applyFeedback').disabled;
+    updatePreview();
+}
+function populateVersions(){
+    $('versions').replaceChildren();
+    for(const r of runs){const option=node('option','Version '+r.version+' · '+r.task);option.value=r.id;$('versions').append(option)}
+}
+function archivedTrace(r){
+    $('trace').replaceChildren();
+    for(const e of r.audit.events||[])eventView(e);
+    if(!r.audit.events?.length)eventView({role:'Python',message:'Reference run on the included data. No Llama review was requested.'});
+    setWorker('', 'Showing completed version '+r.version+'.');
+}
+$('versions').onchange=()=>{
+    const selected=runs.find(r=>r.id===$('versions').value);
+    showReport(selected);archivedTrace(selected);
+    $('feedbackStatus').textContent=selected===runs.at(-1)?'':'Select the latest version to give feedback.';
+};
+$('download').onclick=()=>{
+    const url=URL.createObjectURL(new Blob([report.audit.python_script],{type:'text/plain'}));
+    const a=node('a','');a.href=url;a.download='analysis_v'+report.version+'.py';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+function showRewrite(offer, text){
+    rewriteOffer=offer;
+    $('rewriteOriginal').textContent=offer.body.parent_id?offer.body.feedback:offer.body.prompt;
+    $('rewriteText').value=text;$('rewriteStatus').textContent='';
+    $('rewritePanel').hidden=false;$('rewriteText').focus();
+}
+async function runRequest(body, isRevision=false, retryReply=null, retryRewrite=null){
+    if(busy)return;
+    if(!isRevision) clearAnalysis();
+    $('analysisWorkspace').hidden=false;
+    closeSource();
+    invalidateHints();clearFieldHelp();
+    pending=null;rewriteOffer=null;$('clarificationPanel').hidden=true;$('rewritePanel').hidden=true;
+    busy=true;syncControls();$('trace').replaceChildren();$('status').textContent='Starting…';
+    $('feedbackStatus').textContent=isRevision?'Starting revision…':'';
+    if(isRevision)eventView({role:'User',decision:'feedback',message:body.feedback});
+    setWorker(body.mode==='reference'?'Python':'Prompt reviewer',isRevision?'Starting the revised analysis…':'Starting analysis…');
+    let completion='Stopped.';
+    try {
+        const response=await fetch('/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(!response.ok)throw Error(response.status===422?(await response.json()).error:response.status===410?'This version has expired. Start a new run.':'Invalid request or CSV (HTTP '+response.status+').');
+        const reader=response.body.getReader(), decoder=new TextDecoder();let buffer='',finished=false;
+        while(true){
+            const {done,value}=await reader.read();buffer+=decoder.decode(value,{stream:!done});
+            const lines=buffer.split('\n');buffer=lines.pop();
+            for(const line of lines){
+                if(!line.trim())continue;const e=JSON.parse(line);
+                if(e.type==='event'){eventView(e);$('status').textContent='Review in progress…'}
+                if(e.type==='status')$('status').textContent=e.message;
+                if(e.type==='needs_source'){
+                    openSource(body,e);
+                    completion=e.message;$('status').textContent=completion;finished=true;
+                }
+                if(e.type==='needs_fields'){
+                    if(fields.every(f=>f.value.trim()===body.prompt_fields[f.id])){
+                        showFieldHelp(e.candidates,e.source);
+                        const missing=fields.find(f=>!f.value.trim());if(missing)missing.focus();
+                        completion=e.message+' The analyst is waiting for your entries.';
+                    } else {completion='The form changed during review. Submit the updated fields.'}
+                    $('status').textContent=completion;finished=true;
+                }
+                if(e.type==='rewrite_offered'){
+                    showRewrite({body,isRevision,suggestion:e.suggestion},e.suggestion);
+                    completion='Choose the wording to send to the analyst.';$('status').textContent=completion;finished=true;
+                }
+                if(e.type==='needs_input'){
+                    pending={body,isRevision,question:e.question};
+                    $('reviewQuestion').textContent=e.question;$('clarificationAnswer').value='';
+                    $('answerStatus').textContent='Your original prompt and data are kept for this reply.';
+                    $('clarificationPanel').hidden=false;$('clarificationAnswer').focus();
+                    completion='Waiting for your answer.';$('status').textContent=completion;finished=true;
+                }
+                if(e.type==='stopped')throw Error(e.message);
+                if(e.type==='result'){
+                    const r=e.report;
+                    if(!isRevision)runs.length=0;
+                    runs.push(r);populateVersions();showReport(r);
+                    $('feedback').value='';$('feedbackStatus').textContent='';
+                    completion='Version '+r.version+' complete.';
+                    if(body.mode==='reference')eventView({role:'Python',message:'Python reference complete. No Llama review was requested.'});
+                    $('status').textContent=completion;finished=true;
+                }
+            }
+            if(done)break;
+        }
+        if(!finished)throw Error('Connection ended before a final result.');
+    } catch(err){
+        eventView({role:'Studio',decision:'stopped',message:err.message});$('status').textContent=err.message;
+        if(isRevision)$('feedbackStatus').textContent='Revision stopped. The prior version remains available.';
+        if(retryRewrite){
+            showRewrite(retryRewrite,body.wording.edited||retryRewrite.suggestion);
+            $('rewriteStatus').textContent='You can edit the wording and retry.';
+        }
+        if(retryReply){
+            pending=retryReply;$('reviewQuestion').textContent=pending.question;
+            $('clarificationAnswer').value=body.clarifications.at(-1).answer;
+            $('answerStatus').textContent='Your answer is saved here. You can edit it and try again.';
+            $('clarificationPanel').hidden=false;
+        }
+        completion='Stopped. '+err.message;
+    } finally {busy=false;syncControls();setWorker('',completion);
+        if(pending||rewriteOffer)$('workerPromptReviewer').querySelector('small').textContent='Awaiting reply';
+    }
+}
+function chooseWording(keep){
+    if(!rewriteOffer||busy)return;
+    const offer=rewriteOffer, text=$('rewriteText').value.trim();
+    if(!keep&&!text){$('rewriteStatus').textContent='Enter wording or select Keep my wording.';return}
+    const action=keep?'keep':text===offer.suggestion?'use':'edit';
+    const wording={action,suggestion:offer.suggestion,edited:action==='edit'?text:''};
+    return runRequest({...offer.body,wording},offer.isRevision,null,offer);
+}
+$('useRewrite').onclick=()=>chooseWording(false);
+$('keepOriginal').onclick=()=>chooseWording(true);
+$('continueReview').onclick=()=>{
+    if(!pending || busy)return;
+    const answer=$('clarificationAnswer').value.trim();
+    if(!answer){$('answerStatus').textContent='Enter your answer to continue.';return}
+    const p=pending, clarifications=[...(p.body.clarifications||[]),{question:p.question,answer}];
+    return runRequest({...p.body,clarifications},p.isRevision,p);
+};
+$('applyFeedback').onclick=()=>{
+    const feedback=$('feedback').value.trim();
+    if(!feedback){$('feedbackStatus').textContent='Enter the change you want to make.';$('feedback').focus();return}
+    if(report && report===runs.at(-1))return runRequest({parent_id:report.id,feedback},true);
+};
+function showDestination() {
+    let host='';
+    try { const url=new URL($('apiEndpoint').value); if(url.protocol==='https:') host=url.hostname.toLowerCase(); } catch {}
+    if (destination!==host) $('sourceKey').value='';
+    destination=host;
+    $('keyDestination').textContent=host?'Request destination: '+host:'Enter the provider’s public HTTPS endpoint.';
+}
+function showAuthFields() {
+    const auth=$('apiAuth').value;
+    $('paramRow').hidden=!['header','query'].includes(auth);
+    $('keyRow').hidden=auth==='none';
+    $('pathRow').hidden=$('apiFormat').value!=='json';
+}
+function applySettings(example){
+    const p=sourceSettings;
+    $('apiEndpoint').value=example?p.endpoint:'';
+    $('apiPath').value=example?p.path:'';
+    $('apiDate').value=example?p.date:'date';
+    $('apiValues').value=example?p.values:'value';
+    $('apiFormat').value=example?p.format:'json';
+    $('apiAuth').value=p.auth;$('apiParam').value=p.param;
+    $('apiAuth').disabled=Boolean(p.host);$('apiParam').disabled=Boolean(p.host);
+    showDestination();showAuthFields();
+}
+function fredIds() {
+    return $('fredIds').value.split(',').map(piece=>{
+        const id=piece.trim().toUpperCase();
+        return ['`', "'", '"'].includes(id[0]) && id.length>=2 && id.at(-1)===id[0] ? id.slice(1,-1).trim() : id;
+    });
+}
+function usesPresetRecipe() {
+    if (!['retail_2005_2024','airfare_january_2025'].includes(sourceSettings.recipe)) return false;
+    const ids = fredIds();
+    return ids.length===sourceSettings.series_ids.length && sourceSettings.series_ids.every(id=>ids.includes(id));
+}
+function fredStarterTask() {
+    if (usesPresetRecipe()) return undefined;
+    if (sourceSettings.starterTask) return sourceSettings.starterTask;
+    const clarity=sourceRequest?.prompt_fields?.clarity;
+    if (sourceSettings.recipe) {
+        if (sourceSettings.example_task) return sourceSettings.example_task;
+        if (clarity===workedExamples.tsEstimateFred.clarity) return 'ts_dml';
+        if (clarity===workedExamples.dmlFred.clarity) return 'rcf_dml_screen';
+        return 'forecast';
+    }
+}
+function reviewFredImport() {
+    return !usesPresetRecipe() && Boolean(fredStarterTask() || sourceSettings.reviewChanges);
+}
+function fredHelp() {
+    const preset = usesPresetRecipe();
+    const custom = reviewFredImport();
+    $('connectSource').textContent=custom?'Import and review prompt':'Import data and continue';
+    $('sourceStatus').textContent=preset
+        ? sourceSettings.recipe==='retail_2005_2024' ? 'The retail exercise uses sales in millions of dollars through December 2024. Edit the ID to explore another series.' : 'These editable IDs use the airfare example: monthly percentage changes through December 2024. Replace the IDs to use another series.'
+        : custom ? 'Custom series use original FRED units and all available months. After import, review the question before running.'
+                 : 'Enter the series IDs and your key for api.stlouisfed.org.';
+}
+function openSource(body,event){
+    sourceRequest=body; activeProvider=event.provider || 'fred';
+    sourceSettings=event.settings || {name:'FRED'};
+    const fred=activeProvider==='fred';
+    $('sourcePanel').hidden=false;$('connectSource').disabled=false;
+    $('sourceTitle').textContent='Connect to '+sourceSettings.name;
+    $('fredFields').hidden=!fred;$('webFields').hidden=fred;$('fredKeyLink').hidden=!fred;
+    $('keyRow').hidden=false;$('keyLabel').textContent=sourceSettings.name+' key or access token';
+    $('sourceKey').value='';
+    if (fred) {
+        if (sourceSettings.series_ids && !$('fredIds').value.trim()) $('fredIds').value=sourceSettings.series_ids.join(', ');
+        fredHelp();
+        ($('fredIds').value.trim()?$('sourceKey'):$('fredIds')).focus();
+    } else {
+        $('connectSource').textContent='Import data and continue';
+        $('apiHelp').textContent=sourceSettings.note;
+        $('presetSettings').hidden=!sourceSettings.endpoint;
+        const example=activeProvider==='eia';
+        applySettings(example);
+        $('sourceStatus').textContent='Review the destination and fields, then import this dataset.';
+        (example?$('sourceKey'):$('apiEndpoint')).focus();
+    }
+}
+$('fredIds').addEventListener('input',fredHelp);
+$('changeFred').onclick=()=>{
+    if (busy || !importedInput || importedInput.provider!=='fred') return;
+    const prompt_fields=Object.fromEntries(fields.map(f=>[f.id,f.value.trim()]));
+    openSource({prompt:assemblePrompt(),prompt_fields,source_mode:'fred',data_kind:$('dataKind').value,mode:'live'},
+               {provider:'fred',settings:{...importedInput.settings,reviewChanges:true}});
+    $('fredIds').focus();
+};
+$('presetSettings').onclick=()=>applySettings(true);
+$('apiEndpoint').addEventListener('input',showDestination);
+$('apiAuth').onchange=()=>{$('sourceKey').value='';showAuthFields();};
+$('apiFormat').onchange=showAuthFields;
+$('connectSource').onclick = async () => {
+    const body = sourceRequest;
+    if (!body || busy || $('connectSource').disabled) return;
+    if (body.prompt !== assemblePrompt()) {
+        closeSource(); $('status').textContent = 'Your prompt changed. Click Run to use the updated question.'; return;
+    }
+    const provider=activeProvider, fred=provider==='fred', api_key=$('sourceKey').value.trim();
+    const preset = fred && usesPresetRecipe();
+    const starterTask = fred ? fredStarterTask() : undefined;
+    const templates={exploration:workedExamples.exploreFred,ts_dml:workedExamples.tsEstimateFred,rcf_dml_screen:workedExamples.dmlFred,
+                     forecast:workedExamples.retailFred};
+    const oldFields = importedInput?.starter || sourceSettings.family_fields || templates[starterTask];
+    const payload=fred ? {series_ids:fredIds().join(', '), api_key,
+        recipe:preset ? sourceSettings.recipe:undefined, starter_task:starterTask} : {
+        provider, api_key, endpoint:$('apiEndpoint').value.trim(), auth:$('apiAuth').value,
+        param:$('apiParam').value.trim(), path:$('apiPath').value.trim(), date:$('apiDate').value.trim(),
+        values:$('apiValues').value.trim(), format:$('apiFormat').value
+    };
+    if ((fred && !payload.series_ids) || (!fred && (!destination || !payload.date || !payload.values))) {
+        $('sourceStatus').textContent='Complete the data source and observation fields.';return;
+    }
+    if (!fred && sourceSettings.host && destination!==sourceSettings.host) {
+        $('sourceStatus').textContent='Use the provider’s official API host: '+sourceSettings.host;return;
+    }
+    if ((fred || payload.auth!=='none') && !api_key) {
+        $('sourceStatus').textContent='Enter the key for this provider in the masked field.';return;
+    }
+    $('sourceKey').value = '';
+    $('connectSource').disabled = true;
+    $('connectionInputs').disabled = true;
+    $('sourceStatus').textContent='Importing monthly observations from '+(fred?'api.stlouisfed.org':destination)+'…';
+    try {
+        const response = await fetch(fred?'/sources/fred':'/sources/web',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(payload)});
+        const data = await response.json();
+        if (sourceRequest !== body) return;
+        if (!response.ok) throw Error(data.error || 'API import failed.');
+        if (body.prompt !== assemblePrompt()) throw Error('Your prompt changed during import. Click Run again.');
+        const review = Boolean(data.starter || (fred && !preset && sourceSettings.reviewChanges));
+        importedInput = {...data, provider, starterTask, review, settings:sourceSettings};
+        $('saveInput').hidden = false; $('changeFred').hidden=!fred;
+        if (review) {
+            // Carry user-authored fields across imports. Replace only untouched example text.
+            if (data.starter) for (const field of fields) {
+                if (field.value.trim()===oldFields[field.id]) field.value=data.starter[field.id];
+            }
+            if(data.family_config){
+                familyConfig={...data.family_config,fields:data.starter};
+                showFamilySettings(familyConfig);
+            }
+            importedInput.settings={name:'FRED',starterTask};
+            retailExample=false; exploreExample=false; tsEstimateExample=false;
+            closeSource(); updatePreview();
+            $('status').textContent='Imported '+data.series.join(', ')+'. Review the five boxes, then choose Run. Edited prompts use local Llama.';
+            setWorker('', 'Ready for your review.'); $('clarity').focus();
+            return;
+        }
+        return await runRequest({...body,csv:data.csv,filename:data.filename});
+    } catch(error) {
+        if (sourceRequest === body) $('sourceStatus').textContent = error.message;
+    } finally {
+        if (sourceRequest === body) { $('connectSource').disabled = false; $('connectionInputs').disabled = false; }
+    }
+};
+for (const id of ['sourceKey','fredIds']) $(id).addEventListener('keydown',event=>{
+    if(event.key==='Enter'){event.preventDefault();$('connectSource').onclick();}
+});
+$('saveInput').onclick = () => {
+    if (!importedInput) return;
+    const url=URL.createObjectURL(new Blob([importedInput.csv],{type:'text/csv'}));
+    const a=node('a','');a.href=url;a.download=importedInput.provider+'_monthly_input.csv';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+async function submitAnalysis(mode){
+    if(busy)return;
+    const prompt=assemblePrompt();
+
+    if(!prompt || familyPending) return;
+    if(Array.from(prompt).length>8000){$('status').textContent='Shorten the combined prompt to 8,000 characters.';return}
+    const f=$('file').files[0];
+    const source_mode=$('sourceMode').value;
+    if (!['auto','local','ar_demo','retail_demo'].includes(source_mode) && f) {$('status').textContent='Clear the CSV to use the selected API, or select Included data or CSV.';return}
+    if(f&&f.size>3000000){$('status').textContent='Choose a CSV under 3 MB.';return}
+    const cached = !f && importedInput?.provider==='fred' && importedInput.review ? importedInput : null;
+    if(sourceRequest && activeProvider==='fred' && reviewFredImport()){
+        $('sourceStatus').textContent='Import the edited series first, then review your question.'; return;
+    }
+    if(!cached) forgetInput();
+    const prompt_fields=Object.fromEntries(fields.map(f=>[f.id,f.value.trim()]));
+    if(fields.every(f=>f.value.trim()))clearFieldHelp();
+    const version=familyVersion;
+    try{
+        const csv=f ? await f.text() : cached?.csv;
+        if(version!==familyVersion || prompt!==assemblePrompt()) return;
+        await runRequest({prompt,mode,prompt_fields,source_mode,data_kind:$('dataKind').value,csv,filename:f?f.name:cached?.filename,fred_task:cached?.starterTask,family_config:familyConfig,exploration_target:csvExplore?.target,exploration_units:csvExplore?.units});
+    }
+    catch(err){$('status').textContent=err.message}
+}
+$('form').onsubmit=ev=>{
+    ev.preventDefault();
+    return submitAnalysis(ev.submitter===$('reference')?'reference':'live');
+};
+showDivision('forecasting');
+</script></body></html>
